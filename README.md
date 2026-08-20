@@ -75,22 +75,23 @@ not a way to dodge any single provider's quota.
 ### Social / mention-volume sources (`lib/social.js` — drives the Political Stock Market)
 | Source | Get access | Notes |
 |---|---|---|
-| **Reddit** | Free OAuth "script" app at [reddit.com/prefs/apps](https://www.reddit.com/prefs/apps) | Search API, mention counts over last 24h |
-| **Bluesky** | Free account + App Password (bsky.app → Settings → App Passwords) | Public feed reads need *no* auth; keyword search needs this login |
-| **Mastodon** | No key — just point `MASTODON_INSTANCE` at any instance | Public hashtag timelines are open by default on most instances |
-| **Hacker News** | No key needed | Algolia's free HN search API — low volume for Indian politics, but zero cost to include |
+| **Wikipedia Pageviews** | Nothing — no key, ever | Zero setup, always on. Page traffic is a solid "how much attention right now" signal |
+| **GDELT Project** | Nothing — no key, ever | Free global news-event database, always on |
+| **Hacker News** | Nothing — no key, ever | Algolia's free HN search — low volume for Indian politics, but zero cost |
+| **Mastodon** | Nothing — just set `MASTODON_INSTANCE` | Public hashtag timelines are open on most instances |
+| **Bluesky** | Free account + App Password (bsky.app → Settings → App Passwords) | Approval is instant. Public feed reads need no auth at all; keyword search needs this login |
+| **Reddit** | Free OAuth "script" app at [reddit.com/prefs/apps](https://www.reddit.com/prefs/apps) — *optional* | The free tier is real, but as of 2026 new developer apps need manual approval, 2-4 weeks. Not worth waiting on — everything above already covers this feature well without it |
 | **X (Twitter)** | Optional, paid only | See note below |
 
 ### A note on X (Twitter)
 You asked for X specifically. As of **February 2026, X discontinued free
 developer API access entirely** — it's pay-per-use credits now, with no free
-allowance for new developers. There's no way around that from X's side.
-`lib/social.js` includes an `fromX()` function that's fully wired and ready —
-it just stays at zero unless you set `X_BEARER_TOKEN`, which only works if
-you've bought credits at developer.x.com. Until then, **Bluesky is the closest
-free equivalent**: it's built on the open AT Protocol, has crossed 40M+ users
-in 2026, and its public API needs no auth at all for feed reads (a free App
-Password unlocks keyword search).
+allowance for new developers, and no legitimate workaround from X's side.
+`lib/social.js` includes a fully wired `fromX()` function — it just stays at
+zero unless you set `X_BEARER_TOKEN`, which only works if you've bought
+credits at developer.x.com. Until then, **Wikipedia Pageviews + GDELT already
+give you a genuinely free, always-on, zero-signup trending/sentiment
+signal** — they're on by default and need nothing from you to start working.
 
 ### On "multiple keys" and rotation
 `lib/keyRotation.js` supports comma-separating multiple keys for one provider
