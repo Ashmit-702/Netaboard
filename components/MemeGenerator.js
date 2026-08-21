@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
-const bgs = ["#0a0d16", "#12172a", "#ffb800", "#00d9a3", "#ff4757"];
+const bgs = ["#211c14", "#a8631f", "#0e6b62", "#a3271e", "#f2ede0"];
 
 export default function MemeGenerator() {
   const canvasRef = useRef(null);
@@ -17,7 +17,7 @@ export default function MemeGenerator() {
     const ctx = c.getContext("2d");
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, c.width, c.height);
-    ctx.strokeStyle = "rgba(245,243,236,0.08)";
+    ctx.strokeStyle = "rgba(107,98,82,0.18)";
     ctx.lineWidth = 1;
     for (let i = 0; i < c.width; i += 30) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, c.height); ctx.stroke(); }
 

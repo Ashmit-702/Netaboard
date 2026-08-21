@@ -40,8 +40,8 @@ export default function QuizWidget({ questions }) {
         {q.options.map((opt, idx) => {
           let bg = "var(--panel-2)", border = "var(--line)";
           if (picked !== null) {
-            if (idx === q.correct_index) { bg = "rgba(0,217,163,0.12)"; border = "var(--mint)"; }
-            else if (idx === picked) { bg = "rgba(255,71,87,0.12)"; border = "var(--red)"; }
+            if (idx === q.correct_index) { bg = "rgba(14,107,98,0.12)"; border = "var(--mint)"; }
+            else if (idx === picked) { bg = "rgba(163,39,30,0.12)"; border = "var(--red)"; }
           }
           return (
             <button key={idx} onClick={() => pick(idx)} style={{ textAlign: "left", padding: "12px 14px", borderRadius: 4, background: bg, border: `1px solid ${border}`, color: "var(--paper)", cursor: picked === null ? "pointer" : "default" }}>

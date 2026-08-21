@@ -37,6 +37,19 @@ export default function FactCheckForm() {
             {result.verdict || "Unknown"}
           </span>
           <p style={{ fontSize: 14, lineHeight: 1.55, marginTop: 12 }}>{result.explanation}</p>
+          {result.sources?.length > 0 && (
+            <div style={{ marginTop: 16 }}>
+              <div style={{ fontFamily: "var(--sans)", fontSize: 11, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--paper-faint)", marginBottom: 8 }}>
+                Published fact-checks found
+              </div>
+              {result.sources.map((s, i) => (
+                <div key={i} style={{ fontSize: 12.5, color: "var(--paper-dim)", marginBottom: 6 }}>
+                  <strong>{s.publisher}</strong> rated a related claim <em>&ldquo;{s.rating}&rdquo;</em>
+                  {s.url && <> — <a href={s.url} target="_blank" rel="noreferrer" style={{ color: "var(--amber)", textDecoration: "underline" }}>source</a></>}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
