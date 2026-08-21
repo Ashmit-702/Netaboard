@@ -109,14 +109,23 @@ and status code — before assuming your keys are wrong.
 | **X (Twitter)** | Optional, paid only | See note below |
 
 ### A note on X (Twitter)
-You asked for X specifically. As of **February 2026, X discontinued free
-developer API access entirely** — it's pay-per-use credits now, with no free
-allowance for new developers, and no legitimate workaround from X's side.
-`lib/social.js` includes a fully wired `fromX()` function — it just stays at
-zero unless you set `X_BEARER_TOKEN`, which only works if you've bought
-credits at developer.x.com. Until then, **Wikipedia Pageviews + GDELT already
-give you a genuinely free, always-on, zero-signup trending/sentiment
-signal** — they're on by default and need nothing from you to start working.
+As of **February 2026, X moved to pay-per-use pricing** — no subscriptions
+for new developers, no free tier. You buy credits and pay per request:
+roughly **$0.005 per post read**, capped at 2M reads/month self-serve. For
+this app's scale — a handful of politicians checked once a day via
+`/api/stock-refresh` — that's realistically **$15–40/month**, not the old
+$200/month "Basic" tier people remember.
+
+`fromX()` in `lib/social.js` is fully wired: create a Project + App at
+[developer.x.com](https://developer.x.com), generate a **Bearer Token**, add
+billing/credits in the developer portal, then set `X_BEARER_TOKEN` — it
+activates automatically, no code changes needed. It uses the standard
+`/2/tweets/search/recent` endpoint (not the counts endpoint, whose
+pay-per-use availability is inconsistently documented) with `max_results=25`
+per call to keep cost predictable.
+
+Until/unless you add it, **Wikipedia Pageviews + GDELT already give a
+genuinely free, always-on, zero-signup trending signal** — no setup needed.
 
 ### On "multiple keys" and rotation
 `lib/keyRotation.js` supports comma-separating multiple keys for one provider
