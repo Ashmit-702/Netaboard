@@ -1,17 +1,16 @@
 import Nav from "@/components/Nav";
 import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
+import AccountabilityScoreCard from "@/components/AccountabilityScoreCard";
+import EvidenceLedgerItem from "@/components/EvidenceLedgerItem";
 import { getPolitician } from "@/lib/data";
 import { notFound } from "next/navigation";
-
-const markFor = { done: ["y", "✔"], partial: ["p", "◐"], broken: ["n", "✖"] };
 
 export default async function PoliticianPage({ params }) {
   const p = await getPolitician(params.slug);
   if (!p) return notFound();
 
-  const done = (p.promises || []).filter((x) => x.status === "done").length;
-  const totalPromises = (p.promises || []).length;
+  const promiseClaims = (p.claims || []).filter((c) => c.claim_type === "promise");
 
   return (
     <>
@@ -23,21 +22,18 @@ export default async function PoliticianPage({ params }) {
         <p className="sub">{p.role} · {p.party?.abbreviation}{p.bio ? ` — ${p.bio}` : ""}</p>
 
         <div className="grid-2">
-          <div className="card">
-            <h3 style={{ fontSize: 15, marginBottom: 4 }}>Promise Tracker</h3>
-            <div style={{ fontFamily: "var(--mono)", fontSize: 12, color: "var(--paper-faint)", marginBottom: 16 }}>
-              {done} of {totalPromises} tracked promises fully delivered
+          <div>
+            <AccountabilityScoreCard accountability={p.accountability} />
+            <div className="card" style={{ marginTop: 20 }}>
+              <h3 style={{ fontSize: 15, marginBottom: 4 }}>Evidence Ledger</h3>
+              <div style={{ fontSize: 12, color: "var(--paper-faint)", marginBottom: 14 }}>
+                Click any claim to see its evidence and verdict reasoning
+              </div>
+              {promiseClaims.map((c) => (
+                <EvidenceLedgerItem key={c.id} claim={c} />
+              ))}
+              {!promiseClaims.length && <div style={{ color: "var(--paper-faint)", fontSize: 13.5 }}>No claims tracked yet.</div>}
             </div>
-            {(p.promises || []).map((pr, i) => {
-              const [cls, sym] = markFor[pr.status] || ["p", "◐"];
-              return (
-                <div key={i} className="row-line" style={{ alignItems: "flex-start" }}>
-                  <span className={"mark " + cls}>{sym}</span>
-                  <span style={{ fontSize: 13.5, lineHeight: 1.4 }}>{pr.text}</span>
-                </div>
-              );
-            })}
-            {!totalPromises && <div style={{ color: "var(--paper-faint)", fontSize: 13.5 }}>No promises logged yet.</div>}
           </div>
 
           <div className="card">
