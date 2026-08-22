@@ -10,7 +10,7 @@ export default async function MorePage() {
 
   const tools = [
     ["Constituency Dashboard", "/constituencies", "Vote share, margins, and development data per seat."],
-    ["Live Heat Map", "/heatmap", "Every constituency, colored by lead."],
+    ["Constituency Grid", "/heatmap", "Every constituency, colored by lead."],
     ["Election Calendar", "/calendar", "Every election, one countdown timeline."],
     ["Historical Explorer", "/history", "Every Lok Sabha result since 1952."],
     ["Debate Arena", "/debate", "Structured for/against arguments, ranked by vote."],

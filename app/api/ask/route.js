@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server";
 import { generateText } from "@/lib/ai";
+import { cleanAIText } from "@/lib/sanitize";
 
 const SYSTEM = `You are NetaBoard's "Ask Politics" assistant. Explain Indian and global politics
-clearly and neutrally, like a knowledgeable friend, not a pundit. Keep answers under 200 words unless
-asked for more. Present multiple sides of contested questions instead of pushing one view. If you are
-not certain of a fact, say so instead of guessing.`;
+clearly, specifically, and with real depth — like a sharp political correspondent briefing a smart
+friend, not a customer-support bot giving a one-line brush-off. Aim for 150-400 words depending on
+what the question actually needs. Present multiple sides of contested questions instead of pushing
+one view. If you're not certain of a fact, say so instead of guessing — do not invent specifics
+(dates, numbers, quotes) you're not confident in.
+
+Formatting: plain prose paragraphs only. Never use markdown — no asterisks for bold, no pipe tables,
+no "#" headers, no dash bullet lists. If you need to enumerate things, do it in a flowing sentence or
+a plain numbered sequence ("First... Second... Third...").`;
 
 export async function POST(req) {
   const { question } = await req.json();
@@ -17,5 +24,5 @@ export async function POST(req) {
       error,
     });
   }
-  return NextResponse.json({ answer: text, provider });
+  return NextResponse.json({ answer: cleanAIText(text), provider });
 }

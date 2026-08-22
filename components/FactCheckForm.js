@@ -33,9 +33,14 @@ export default function FactCheckForm() {
       </button>
       {result && (
         <div style={{ marginTop: 20, borderTop: "1px solid var(--line)", paddingTop: 18 }}>
-          <span className="tag" style={{ borderColor: verdictColor[result.verdict] || "var(--line)", color: verdictColor[result.verdict] || "var(--paper)" }}>
-            {result.verdict || "Unknown"}
-          </span>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <span className="tag" style={{ borderColor: verdictColor[result.verdict] || "var(--line)", color: verdictColor[result.verdict] || "var(--paper)" }}>
+              {result.verdict || "Unknown"}
+            </span>
+            <span className="tag" style={{ color: result.grounded ? "var(--mint)" : "var(--paper-faint)", borderColor: result.grounded ? "var(--mint)" : "var(--line)" }}>
+              {result.grounded ? "Grounded in published fact-checks" : "AI judgment — no published fact-check found"}
+            </span>
+          </div>
           <p style={{ fontSize: 14, lineHeight: 1.55, marginTop: 12 }}>{result.explanation}</p>
           {result.sources?.length > 0 && (
             <div style={{ marginTop: 16 }}>

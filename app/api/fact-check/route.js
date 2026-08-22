@@ -2,11 +2,14 @@ import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabaseServer";
 import { generateText } from "@/lib/ai";
 import { searchPublishedFactChecks } from "@/lib/factcheck";
+import { cleanAIText } from "@/lib/sanitize";
 
 const SYSTEM = `You are a political fact-checker. You may be given real published fact-checks as
-context — weigh them heavily if present, they're from verified sources. Respond ONLY with strict
-JSON: {"verdict":"True|Misleading|Needs Context|False","explanation":"2-3 sentence neutral
-explanation"}. Do not include markdown fences or any other text.`;
+context. IMPORTANT: if a published fact-check exists with a clear rating for the same claim, your
+verdict should match it unless you have a specific, stated reason to disagree — you are not the
+final authority when a verified publisher has already ruled on this. Respond ONLY with strict JSON:
+{"verdict":"True|Misleading|Needs Context|False","explanation":"2-3 sentence neutral explanation in
+plain prose, no markdown, no asterisks"}. Do not include markdown fences or any other text.`;
 
 export async function POST(req) {
   const { text } = await req.json();
@@ -35,6 +38,8 @@ export async function POST(req) {
   try { parsed = JSON.parse(raw); }
   catch { parsed = { verdict: "Needs Context", explanation: raw }; }
 
+  parsed.explanation = cleanAIText(parsed.explanation);
+
   const sb = supabaseServer();
   if (sb) {
     await sb.from("fact_checks").insert({
@@ -43,5 +48,5 @@ export async function POST(req) {
     });
   }
 
-  return NextResponse.json({ ...parsed, sources: published, provider });
+  return NextResponse.json({ ...parsed, sources: published, provider, grounded: published.length > 0 });
 }

@@ -37,6 +37,19 @@ export default async function BriefPage() {
             </div>
           ))}
           <div className="status-banner info" style={{ marginTop: 18 }}>Watch today: {content.watch_today}</div>
+          {content.sources?.length > 0 && (
+            <div style={{ marginTop: 20, borderTop: "1px solid var(--line)", paddingTop: 16 }}>
+              <div style={{ fontFamily: "var(--sans)", fontSize: 11, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--paper-faint)", marginBottom: 10 }}>
+                Sources ({content.sources.length})
+              </div>
+              {content.sources.map((s, i) => (
+                <div key={i} style={{ fontSize: 12.5, marginBottom: 6 }}>
+                  <span style={{ color: "var(--paper-dim)" }}>{s.source}</span>
+                  {s.url && <> — <a href={s.url} target="_blank" rel="noreferrer" style={{ color: "var(--amber)", textDecoration: "underline" }}>{s.title}</a></>}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
       <Footer />

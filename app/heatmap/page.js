@@ -3,7 +3,7 @@ import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 import { getConstituencies } from "@/lib/data";
 
-export const metadata = { title: "Live Heat Map — NetaBoard" };
+export const metadata = { title: "Constituency Grid — NetaBoard" };
 
 function colorFor(voteShare) {
   if (voteShare >= 55) return "var(--mint)";
@@ -19,11 +19,12 @@ export default async function HeatmapPage() {
       <Ticker />
       <Nav />
       <section className="wrap">
-        <div className="eyebrow">Live Political Heat Map</div>
+        <div className="eyebrow">Constituency Grid</div>
         <h2 className="title">Every constituency, colored by lead.</h2>
         <p className="sub">
-          A grid view today — swap in Leaflet + OpenStreetMap for a real geographic map once you're
-          ready to plot lat/long per constituency. Green = strong lead, amber = close, red = trailing.
+          Named honestly: this is a grid, not a geographic map. A real map would use Leaflet +
+          OpenStreetMap plotting each constituency by lat/long — worth building once real per-seat
+          coordinates are loaded. Green = strong lead, amber = close, red = trailing.
         </p>
         <div className="grid-4">
           {constituencies.map((c) => (

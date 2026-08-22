@@ -6,7 +6,7 @@ const links = [
   ["/coalition", "Coalition"],
   ["/politicians", "Politicians"],
   ["/constituencies", "Constituencies"],
-  ["/stock-market", "Stock Market"],
+  ["/stock-market", "Attention Index"],
   ["/brief", "Daily Brief"],
   ["/ask", "Ask AI"],
   ["/more", "More"],
