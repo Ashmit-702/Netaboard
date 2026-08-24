@@ -15,13 +15,14 @@ export default function Footer() {
           <div className="stack-row"><span className="k">Hosting</span><span>Vercel</span></div>
           <div className="stack-row"><span className="k">Database</span><span>Supabase Postgres</span></div>
           <div className="stack-row"><span className="k">Auth</span><span>Supabase Auth</span></div>
-          <div className="stack-row"><span className="k">AI</span><span>Gemini free tier</span></div>
+          <div className="stack-row"><span className="k">AI</span><span>Groq / Gemini / OpenRouter</span></div>
         </div>
         <div>
           <h4>Data sources</h4>
           <div className="stack-row"><span className="k">Results</span><span>ECI, MyNeta</span></div>
-          <div className="stack-row"><span className="k">News</span><span>GNews free tier</span></div>
-          <div className="stack-row"><span className="k">Sentiment</span><span>Reddit API (free)</span></div>
+          <div className="stack-row"><span className="k">News</span><span>GNews, GDELT + more</span></div>
+          <div className="stack-row"><span className="k">Attention</span><span>Wikipedia, GDELT, HN</span></div>
+          <div className="stack-row"><span className="k">Fact-checks</span><span>Google Fact Check Tools</span></div>
         </div>
       </div>
       <div className="foot-bottom">NETABOARD — NOT AFFILIATED WITH ANY PARTY OR THE ELECTION COMMISSION OF INDIA</div>

@@ -44,6 +44,9 @@ export default async function PoliticiansPage() {
                   <span style={{ color: "var(--amber)" }}>{a.partial} partial</span>
                   <span style={{ color: "var(--red)" }}>{a.notFulfilled} not fulfilled</span>
                 </div>
+                <div style={{ fontSize: 11, color: "var(--amber)", marginTop: 6 }}>
+                  {a.evidenceCoverage}% evidence coverage
+                </div>
                 {a.disputed > 0 && (
                   <div style={{ fontSize: 11, color: "var(--paper-faint)", marginTop: 6 }}>
                     +{a.disputed} awaiting evidence

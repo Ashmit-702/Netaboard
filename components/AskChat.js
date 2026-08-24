@@ -1,14 +1,17 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 
 export default function AskChat() {
   const [q, setQ] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const firedRef = useRef(false);
 
-  async function ask() {
-    if (!q.trim() || loading) return;
-    const question = q.trim();
+  async function ask(overrideText) {
+    const question = (overrideText ?? q).trim();
+    if (!question || loading) return;
     setMessages((m) => [...m, { role: "user", text: question }]);
     setQ("");
     setLoading(true);
@@ -25,6 +28,17 @@ export default function AskChat() {
     }
     setLoading(false);
   }
+
+  // Supports arriving from the homepage's "Did this actually happen?" box
+  // via /ask?q=... — auto-fires once on load, never re-fires on re-renders.
+  useEffect(() => {
+    const prefill = searchParams.get("q");
+    if (prefill && !firedRef.current) {
+      firedRef.current = true;
+      ask(prefill);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   return (
     <div className="card">

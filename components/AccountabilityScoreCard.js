@@ -2,11 +2,11 @@
 // its own methodology — so the number is never shown without an explanation
 // of exactly how it was derived, per the Evidence Ledger's core rule.
 export default function AccountabilityScoreCard({ accountability }) {
-  const { score, total, fulfilled, partial, notFulfilled, disputed, avgConfidence, methodology } = accountability;
+  const { accountabilityScore: score, evidenceCoverage, scoredClaims, totalClaims: total, fulfilled, partial, notFulfilled, unverified: disputed, avgConfidence, methodology } = accountability;
 
   return (
     <div className="card">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
         <div>
           <div style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--paper-faint)", fontFamily: "var(--sans)" }}>
             Accountability Score
@@ -21,6 +21,17 @@ export default function AccountabilityScoreCard({ accountability }) {
             Avg. confidence {avgConfidence}%
           </span>
         )}
+      </div>
+
+      {/* Evidence coverage is shown unconditionally, right next to the score
+          it qualifies — a high score built on low coverage should never be
+          mistaken for a complete picture. */}
+      <div style={{ marginBottom: 18 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 5 }}>
+          <span style={{ color: "var(--paper-dim)" }}>Evidence coverage</span>
+          <span style={{ fontFamily: "var(--mono)", color: "var(--amber)" }}>{evidenceCoverage}% ({scoredClaims} of {total} claims scored)</span>
+        </div>
+        <div className="bar-track"><div className="bar-fill" style={{ width: evidenceCoverage + "%", background: "var(--amber)" }} /></div>
       </div>
 
       <div className="grid-4" style={{ gap: 12, marginBottom: 16 }}>
