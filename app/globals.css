@@ -55,6 +55,18 @@ header.site{
 nav.site{display:flex; gap:22px; font-family:var(--sans); font-size:11.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--paper-dim); flex-wrap:wrap;}
 nav.site a{transition:color .15s;}
 nav.site a:hover, nav.site a.active{color:var(--amber);}
+.nav-toggle{ display:none; background:none; border:1px solid var(--line); border-radius:2px; width:38px; height:38px; font-size:16px; color:var(--paper); cursor:pointer; }
+.nav-mobile{ display:none; }
+@media(max-width:900px){
+  .nav-desktop{ display:none; }
+  .nav-ask{ display:none; }
+  .nav-toggle{ display:block; }
+  .nav-mobile{
+    display:flex; flex-direction:column; width:100%; order:10;
+    border-top:1px solid var(--line); margin-top:14px; padding-top:14px; gap:14px;
+    font-family:var(--sans); font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.04em;
+  }
+}
 
 /* ---------- LAYOUT ---------- */
 .wrap{ padding:68px 5vw; max-width:1180px; margin:0 auto; }

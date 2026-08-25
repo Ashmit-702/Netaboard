@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "NetaBoard — Live Election Intelligence",
-  description: "Predictions, promise tracking, and coalition math for Indian politics — built like a live scoreboard, not a news feed.",
+  title: "NetaBoard — Politics, with receipts.",
+  description: "Track what was said. Follow the evidence. See what changed. NetaBoard is an evidence-first political accountability platform, not a news feed.",
 };
 
 export default function RootLayout({ children }) {
