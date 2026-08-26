@@ -1,19 +1,22 @@
 import Nav from "@/components/Nav";
 import Ticker from "@/components/Ticker";
 import MinimalFooter from "@/components/MinimalFooter";
-import Gauge from "@/components/Gauge";
 import ChangeCard from "@/components/ChangeCard";
 import EditorialRow from "@/components/EditorialRow";
 import HeroToday from "@/components/HeroToday";
 import HomeSearchBox from "@/components/HomeSearchBox";
 import StoryBehindNumber from "@/components/StoryBehindNumber";
-import { getElection, getPoliticians, getStocks } from "@/lib/data";
+import SinceYesterday from "@/components/SinceYesterday";
+import TheNumber, { pickTheNumber } from "@/components/TheNumber";
+import ElectionWatchCard from "@/components/ElectionWatchCard";
+import { getPoliticians, getStocks } from "@/lib/data";
 import { getAllChanges, parseAttentionFactors } from "@/lib/changes";
+import { getElectionWatch } from "@/lib/electionWatch";
+import { freshnessLabel } from "@/lib/freshness";
 
-// "What Changed Today" is time-sensitive — without this, Next.js's default
-// static generation would bake this page's data in at build time, and it
-// would only ever update on the next redeploy, not reflect what actually
-// changed. Revalidate every 5 minutes instead.
+// Time-sensitive homepage — see note in lib/electionWatch.js and every
+// section's freshness label. Revalidate instead of baking data in at build
+// time, or "What Changed"/"Since Yesterday" would only ever update on redeploy.
 export const revalidate = 300;
 
 function EmptyState({ text }) {
@@ -31,13 +34,13 @@ function SectionHead({ eyebrow, title, sub }) {
 }
 
 export default async function Home() {
-  const [election, politicians, stocks, { changes, byType }] = await Promise.all([
-    getElection(), getPoliticians(), getStocks(), getAllChanges(),
+  const [politicians, stocks, { changes, byType }, { election }] = await Promise.all([
+    getPoliticians(), getStocks(), getAllChanges(), getElectionWatch(),
   ]);
 
   const heroChange = changes[0] || null;
   const restOfChanges = changes.slice(1, 5);
-
+  const theNumberChange = pickTheNumber(changes);
   const topStock = stocks.find((s) => s.reason) || stocks[0];
   const attentionFactors = topStock ? parseAttentionFactors(topStock.reason) : [];
 
@@ -46,42 +49,37 @@ export default async function Home() {
       <Ticker />
       <Nav />
 
-      {/* ---------- HERO: TODAY'S POLITICAL PICTURE ---------- */}
+      {/* ---------- HERO: TODAY IN POLITICS ---------- */}
       <HeroToday change={heroChange} />
 
-      {/* ---------- WHAT CHANGED TODAY (editorial grid, not uniform cards) ---------- */}
+      {/* ---------- WHAT CHANGED ---------- */}
       {restOfChanges.length > 0 && (
         <section className="wrap tight" style={{ borderTop: "1px solid var(--line)" }}>
-          <SectionHead eyebrow="What Changed Today" title="The rest of today's movement." />
+          <SectionHead eyebrow="What Changed" title="The strongest deltas right now." />
           <div className="grid-3">
             {restOfChanges.map((c, i) => <ChangeCard key={i} change={c} />)}
           </div>
         </section>
       )}
 
-      {/* ---------- ELECTIONS ---------- */}
+      {/* ---------- SINCE YESTERDAY + THE NUMBER (paired, full-width rhythm break) ---------- */}
       <section className="wrap tight" style={{ borderTop: "1px solid var(--line)" }}>
-        <SectionHead eyebrow="Elections" title={election.name} />
         <div className="grid-2">
-          <Gauge
-            labelA={election.optionA.label} pctA={election.optionA.probability}
-            labelB={election.optionB.label} pctB={election.optionB.probability}
-            history={election.history}
-          />
           <div>
-            <div className="status-banner needs" style={{ marginBottom: 16 }}>
-              A maintained estimate, not an automated forecast — the illustrative distinction matters.
-              See <a href="/predictions" style={{ color: "inherit", textDecoration: "underline" }}>methodology</a>.
-            </div>
-            {(byType.election_prediction || []).length ? (
-              byType.election_prediction.slice(0, 2).map((c, i) => (
-                <EditorialRow key={i} eyebrow={c.entity} title={`${c.previousValue}% → ${c.newValue}%`} meta={c.reason} delta={c.delta} href={c.href} />
-              ))
-            ) : (
-              <EmptyState text="No probability movement recorded yet." />
-            )}
+            <div className="eyebrow">Since Yesterday</div>
+            <SinceYesterday changes={changes} byType={byType} />
+          </div>
+          <div>
+            <div className="eyebrow">The Number</div>
+            <TheNumber change={theNumberChange} />
           </div>
         </div>
+      </section>
+
+      {/* ---------- ELECTION WATCH ---------- */}
+      <section className="wrap tight" style={{ borderTop: "1px solid var(--line)" }}>
+        <SectionHead eyebrow="Election Watch" title="Which election matters right now." sub="Selected from live status and real data — never fixed to one state." />
+        <ElectionWatchCard election={election} />
       </section>
 
       {/* ---------- ACCOUNTABILITY WATCH ---------- */}
@@ -108,13 +106,14 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ---------- FACT CHECK ---------- */}
+      {/* ---------- THE EVIDENCE ---------- */}
       <section className="wrap tight" style={{ borderTop: "1px solid var(--line)" }}>
-        <SectionHead eyebrow="Fact Check" title="Recently checked." sub="The AI explains evidence — it doesn't invent it." />
+        <SectionHead eyebrow="The Evidence" title="One claim, checked." sub="The AI explains evidence — it doesn't invent it, and it isn't the sole authority." />
         {byType.fact_check?.[0] ? (
           (() => {
             const fc = byType.fact_check[0];
             const verdictColor = { true: "var(--mint)", false: "var(--red)", misleading: "var(--amber)", needs_context: "var(--slate)" }[fc.newValue] || "var(--slate)";
+            const fresh = freshnessLabel(fc.timestamp);
             return (
               <div className="grid-2">
                 <div>
@@ -125,6 +124,7 @@ export default async function Home() {
                     {(fc.newValue || "").replace(/_/g, " ")}
                   </div>
                   {fc.confidence != null && <div style={{ fontFamily: "var(--mono)", fontSize: 13, color: "var(--paper-dim)" }}>Confidence: {fc.confidence}%</div>}
+                  <div style={{ fontSize: 11, fontFamily: "var(--mono)", color: fresh.stale ? "var(--red)" : "var(--paper-faint)", marginTop: 8 }}>{fresh.label}</div>
                 </div>
                 <div className="card">
                   <div style={{ fontSize: 12, textTransform: "uppercase", color: "var(--paper-faint)", marginBottom: 6, fontFamily: "var(--sans)" }}>Why</div>
@@ -138,7 +138,7 @@ export default async function Home() {
             );
           })()
         ) : (
-          <EmptyState text="No fact-checks logged yet — try /fact-check to add the first one." />
+          <EmptyState text="Not enough evidence yet. NetaBoard won't manufacture a verdict — try /fact-check to add the first real one." />
         )}
       </section>
 
@@ -152,21 +152,18 @@ export default async function Home() {
             ))}
           </div>
         ) : (
-          <EmptyState text="No constituency movement recorded yet — this needs at least two real snapshots over time per seat, and a fresh deployment starts with one. Shown honestly empty rather than invented. No geographic map is wired up yet either; see /heatmap for the current grid-based placeholder." />
+          <EmptyState text="No constituency movement recorded yet — this needs at least two real snapshots over time per seat. Shown honestly empty rather than invented." />
         )}
       </section>
 
-      {/* ---------- POLITICAL ATTENTION (secondary, minimal) ---------- */}
+      {/* ---------- POLITICAL ATTENTION (secondary) ---------- */}
       <section className="wrap tight" style={{ borderTop: "1px solid var(--line)" }}>
         <SectionHead eyebrow="Political Attention" title="Who's being talked about." sub="Attention is not approval. A scandal moves this the same direction as a good speech." />
         <div className="grid-2">
           <div>
-            {stocks.slice(0, 4).map((s) => {
-              const up = s.change_pct >= 0;
-              return (
-                <EditorialRow key={s.name} title={s.name} meta={null} delta={s.change_pct} href="/stock-market" />
-              );
-            })}
+            {stocks.slice(0, 4).map((s) => (
+              <EditorialRow key={s.name} title={s.name} meta={null} delta={s.change_pct} href="/stock-market" />
+            ))}
           </div>
           {topStock && (
             <StoryBehindNumber
@@ -185,7 +182,7 @@ export default async function Home() {
         <SectionHead eyebrow="Ask NetaBoard" title='"Did this actually happen?"' />
         <HomeSearchBox />
         <div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginTop: 16, fontSize: 12.5, color: "var(--paper-faint)" }}>
-          {["Did this promise get fulfilled?", "What changed in Bihar?", "Why did this election estimate move?", "Is this viral claim true?"].map((ex) => (
+          {["Did this promise get fulfilled?", "What changed recently?", "Why did this election estimate move?", "Is this viral claim true?"].map((ex) => (
             <a key={ex} href={`/ask?q=${encodeURIComponent(ex)}`} style={{ textDecoration: "underline" }}>{ex}</a>
           ))}
         </div>

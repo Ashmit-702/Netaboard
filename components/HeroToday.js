@@ -1,12 +1,3 @@
-const typeLabel = {
-  election_prediction: "Election Pulse",
-  promise_status: "Accountability",
-  new_evidence: "Evidence Ledger",
-  fact_check: "Fact Check",
-  constituency: "Constituency Watch",
-  attention: "Political Attention",
-};
-
 const statusWord = {
   fulfilled: "fulfilled", partially_fulfilled: "partially fulfilled", not_fulfilled: "not fulfilled",
   disputed: "disputed", unverified: "unverified",
@@ -45,7 +36,7 @@ export default function HeroToday({ change }) {
   if (!change) {
     return (
       <section className="wrap" style={{ paddingTop: 64, paddingBottom: 40 }}>
-        <div className="eyebrow">Today</div>
+        <div className="eyebrow">Today in Politics</div>
         <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 700, color: "var(--paper-faint)", textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 10 }}>
           Politics, with receipts.
         </div>
@@ -62,7 +53,7 @@ export default function HeroToday({ change }) {
 
   return (
     <section className="wrap" style={{ paddingTop: 56, paddingBottom: 44 }}>
-      <div className="eyebrow">{typeLabel[change.type] || "Today"}</div>
+      <div className="eyebrow">Today in Politics</div>
       <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 700, color: "var(--paper-faint)", textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 10 }}>
         Politics, with receipts.
       </div>
