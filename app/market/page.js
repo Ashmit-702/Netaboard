@@ -2,16 +2,15 @@ import Nav from "@/components/Nav";
 import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 import VoteWidget from "@/components/VoteWidget";
-import { getElection, getPredictors } from "@/lib/data";
+import { adaptElectionForGauge, getPredictors } from "@/lib/data";
+import { getElectionWatch } from "@/lib/electionWatch";
 
 export const metadata = { title: "Prediction Market — NetaBoard" };
 
 export default async function MarketPage() {
-  const election = await getElection();
+  const watch = await getElectionWatch();
+  const election = adaptElectionForGauge(watch);
   const predictors = await getPredictors();
-  const options = [election.optionA.label, election.optionB.label, "Others"];
-  const colors = { [election.optionA.label]: "var(--amber)", [election.optionB.label]: "var(--mint)", Others: "var(--slate)" };
-  const initialCounts = { [election.optionA.label]: 5204, [election.optionB.label]: 3077, Others: 256 };
 
   return (
     <>
@@ -22,19 +21,31 @@ export default async function MarketPage() {
         <h2 className="title">Everyone's guessing. See who's right.</h2>
         <p className="sub">Cast a prediction, watch the crowd's odds shift live, and climb the accuracy leaderboard once results land.</p>
 
-        <div className="grid-2">
-          <VoteWidget electionId={election.id} options={options} initialCounts={initialCounts} colors={colors} />
-          <div className="card">
-            <h3 style={{ fontSize: 13, textTransform: "uppercase", letterSpacing: ".08em", color: "var(--paper-dim)", marginBottom: 14 }}>Top Predictors</h3>
-            {predictors.map((p, i) => (
-              <div key={p.display_name} className="row-line">
-                <span style={{ fontFamily: "var(--mono)", color: "var(--paper-faint)", width: 18 }}>{i + 1}</span>
-                <span style={{ flex: 1, fontWeight: 600 }}>{p.display_name}</span>
-                <span style={{ fontFamily: "var(--mono)", color: "var(--mint)", fontWeight: 700 }}>{p.accuracy_pct}% acc.</span>
-              </div>
-            ))}
+        {election ? (
+          <div className="grid-2">
+            <VoteWidget
+              electionId={election.id}
+              options={[election.optionA.label, election.optionB.label, "Others"]}
+              colors={{ [election.optionA.label]: "var(--amber)", [election.optionB.label]: "var(--mint)", Others: "var(--slate)" }}
+              initialCounts={{ [election.optionA.label]: 0, [election.optionB.label]: 0, Others: 0 }}
+            />
+            <div className="card">
+              <h3 style={{ fontSize: 13, textTransform: "uppercase", letterSpacing: ".08em", color: "var(--paper-dim)", marginBottom: 14 }}>Top Predictors</h3>
+              {predictors.map((p, i) => (
+                <div key={p.display_name} className="row-line">
+                  <span style={{ fontFamily: "var(--mono)", color: "var(--paper-faint)", width: 18 }}>{i + 1}</span>
+                  <span style={{ flex: 1, fontWeight: 600 }}>{p.display_name}</span>
+                  <span style={{ fontFamily: "var(--mono)", color: "var(--mint)", fontWeight: 700 }}>{p.accuracy_pct}% acc.</span>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="card" style={{ color: "var(--paper-dim)" }}>
+            No active election to predict right now — check back once a real election has enough
+            verified data, or see <a href="/calendar" style={{ color: "var(--amber)", textDecoration: "underline" }}>the calendar</a>.
+          </div>
+        )}
       </section>
       <Footer />
     </>

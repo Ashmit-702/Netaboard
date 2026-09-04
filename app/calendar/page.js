@@ -7,13 +7,15 @@ export const metadata = { title: "Election Calendar — NetaBoard" };
 
 async function getElections() {
   const sb = supabaseServer();
+  // Real historical elections only — no fabricated "upcoming" demo entry
+  // with a countdown implying real currency it doesn't have.
   const fallback = [
-    { name: "Bihar Assembly Election 2026", region: "Bihar", election_date: "2026-11-10", status: "upcoming" },
-    { name: "Tamil Nadu Assembly Election 2026", region: "Tamil Nadu", election_date: "2026-05-06", status: "concluded" },
+    { name: "Bihar Legislative Assembly Election 2020", region: "Bihar", election_date: "2020-11-10", status: "concluded", is_archived: true },
+    { name: "Tamil Nadu Assembly Election 2026", region: "Tamil Nadu", election_date: "2026-05-04", status: "concluded", is_archived: true },
   ];
   if (!sb) return fallback;
   try {
-    const { data } = await sb.from("elections").select("*").order("election_date", { ascending: true });
+    const { data } = await sb.from("elections").select("*").eq("is_demo", false).order("election_date", { ascending: true });
     return data?.length ? data : fallback;
   } catch { return fallback; }
 }
