@@ -41,11 +41,11 @@ export default function HeroToday({ change }) {
           Politics, with receipts.
         </div>
         <h1 style={{ fontSize: "clamp(32px,4.5vw,48px)", lineHeight: 1.1, marginBottom: 14, maxWidth: 780 }}>
-          Nothing significant has changed yet.
+          No major developments.
         </h1>
         <p className="sub" style={{ fontSize: 16 }}>
           NetaBoard tracks political claims, promises, evidence, and elections — this space fills in
-          as real movement happens. Check <a href="/politicians" style={{ color: "var(--amber)", textDecoration: "underline" }}>Politicians</a> or <a href="/predictions" style={{ color: "var(--amber)", textDecoration: "underline" }}>Elections</a> in the meantime.
+          as real movement happens. Check <a href="/predictions" style={{ color: "var(--amber)", textDecoration: "underline" }}>Elections</a>, <a href="/fact-check" style={{ color: "var(--amber)", textDecoration: "underline" }}>Fact Check</a>, or <a href="/politicians" style={{ color: "var(--amber)", textDecoration: "underline" }}>Accountability</a> in the meantime.
         </p>
       </section>
     );

@@ -8,18 +8,26 @@ export const metadata = { title: "Explore — NetaBoard" };
 export default async function ExplorePage() {
   const risk = await getRisk();
 
-  const tools = [
-    ["Prediction Market", "/market", "Crowd-sourced forecasts with an accuracy leaderboard."],
-    ["Coalition Builder", "/coalition", "Tap parties, watch the majority line move."],
-    ["Political Attention", "/stock-market", "Attention volume, not approval — see the underlying signals."],
-    ["Daily AI Brief", "/brief", "Today's politics in five minutes, with sources."],
-    ["Constituency Grid", "/heatmap", "Every constituency, colored by lead."],
-    ["Election Calendar", "/calendar", "Every election, one countdown timeline."],
-    ["Historical Explorer", "/history", "Every Lok Sabha result since 1952."],
-    ["Debate Arena", "/debate", "Structured for/against arguments, ranked by vote."],
-    ["Political IQ Quiz", "/quiz", "Guess winners, seats, and symbols."],
-    ["AI Manifesto Comparison", "/manifesto", "Two manifestos, compared issue by issue."],
-    ["Political Meme Generator", "/memes", "Make one, download it, share it."],
+  const groups = [
+    ["Politics", [
+      ["Coalition Builder", "/coalition", "Tap parties, watch the majority line move."],
+      ["AI Manifesto Comparison", "/manifesto", "Two manifestos, compared issue by issue."],
+      ["Historical Explorer", "/history", "Every Lok Sabha result since 1952."],
+    ]],
+    ["Analysis", [
+      ["Prediction Market", "/market", "Crowd-sourced forecasts with an accuracy leaderboard."],
+      ["Political Attention", "/stock-market", "Attention volume, not approval — see the underlying signals."],
+      ["Constituency Grid", "/heatmap", "Every constituency, colored by lead."],
+    ]],
+    ["Community", [
+      ["Debate Arena", "/debate", "Structured for/against arguments, ranked by vote."],
+      ["Political IQ Quiz", "/quiz", "Guess winners, seats, and symbols."],
+      ["Political Meme Generator", "/memes", "Make one, download it, share it."],
+    ]],
+    ["Tools", [
+      ["Daily AI Brief", "/brief", "Today's politics in five minutes, with sources."],
+      ["Election Calendar", "/calendar", "Every election, one countdown timeline."],
+    ]],
   ];
 
   return (
@@ -51,17 +59,24 @@ export default async function ExplorePage() {
       <section className="wrap tight">
         <div className="eyebrow">Explore</div>
         <h2 className="title">The rest of the toolkit.</h2>
-        <div className="feat-grid">
-          {tools.map(([title, href, desc], i) => (
-            <a key={href} href={href} className="feat">
-              <div className="fnum">{String(i + 1).padStart(2, "0")}</div>
-              <div>
-                <div className="ftitle">{title}</div>
-                <div className="fdesc">{desc}</div>
-              </div>
-            </a>
-          ))}
-        </div>
+        {groups.map(([groupName, items]) => (
+          <div key={groupName} style={{ marginBottom: 36 }}>
+            <div style={{ fontFamily: "var(--sans)", fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--paper-faint)", marginBottom: 14, borderBottom: "1px solid var(--line)", paddingBottom: 10 }}>
+              {groupName}
+            </div>
+            <div>
+              {items.map(([title, href, desc]) => (
+                <a key={href} href={href} className="row-line" style={{ display: "flex", padding: "14px 0", alignItems: "center" }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: 15 }}>{title}</div>
+                    <div style={{ fontSize: 12.5, color: "var(--paper-dim)", marginTop: 2 }}>{desc}</div>
+                  </div>
+                  <span style={{ color: "var(--amber)", fontSize: 13 }}>→</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        ))}
       </section>
       <Footer />
     </>

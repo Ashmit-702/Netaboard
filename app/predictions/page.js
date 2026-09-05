@@ -4,12 +4,14 @@ import Footer from "@/components/Footer";
 import Gauge from "@/components/Gauge";
 import { adaptElectionForGauge } from "@/lib/data";
 import { getElectionWatch } from "@/lib/electionWatch";
+import { freshnessLabel } from "@/lib/freshness";
 
 export const metadata = { title: "Election Predictions — NetaBoard" };
 
 export default async function PredictionsPage() {
   const watch = await getElectionWatch();
   const election = adaptElectionForGauge(watch);
+  const fresh = election ? freshnessLabel(election.lastUpdated) : null;
 
   return (
     <>
@@ -19,12 +21,10 @@ export default async function PredictionsPage() {
         {election ? (
           <>
             <div className="eyebrow">{election.name}</div>
-            <h2 className="title">The prediction — and how it's actually made.</h2>
+            <h2 className="title">The prediction — and exactly what it's built on.</h2>
             <p className="sub">
-              Being direct: this number is a maintained estimate, not an automated model. It lives in the
-              <code>predictions</code> table in Supabase and updates when you (or a script you write) enter
-              a new value — there's no live turnout/sentiment pipeline running behind it yet. Below is what
-              a real version of this model would need, and what's already wired up versus still to build.
+              Every field below is read directly from the <code>predictions</code> table — nothing here
+              is implied or dressed up. If a field says "manual-estimate," that's what it actually is.
             </p>
 
             <div className="grid-2">
@@ -36,23 +36,27 @@ export default async function PredictionsPage() {
                 history={election.history}
               />
               <div className="card">
-                <h3 style={{ fontSize: 15, marginBottom: 14 }}>What a real model needs</h3>
+                <h3 style={{ fontSize: 15, marginBottom: 14 }}>Model &amp; methodology</h3>
                 {[
-                  ["Historical baseline", "Past assembly results, seat by seat, weighted by recency.", "Not built — needs a results dataset"],
-                  ["Turnout signal", "Early and postal-vote turnout vs. each party's historical floor.", "Not built — needs live ECI data"],
-                  ["News sentiment", "Article and mention volume per candidate, scored for tone.", "Partially available — lib/social.js and lib/news.js already pull raw mention/article counts, just not yet fed into a probability calculation"],
-                  ["Local corrections", "Constituency-level swing estimates layered on the state average.", "Not built — needs constituency-level historical data"],
-                ].map(([t, d, status]) => (
-                  <div key={t} className="row-line" style={{ alignItems: "flex-start" }}>
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: 13.5 }}>{t}</div>
-                      <div style={{ fontSize: 12.5, color: "var(--paper-dim)", marginTop: 2 }}>{d}</div>
-                      <div style={{ fontSize: 11.5, color: "var(--amber)", marginTop: 3, fontFamily: "var(--mono)" }}>{status}</div>
-                    </div>
+                  ["Model", election.modelName],
+                  ["Confidence", election.confidence != null ? `${election.confidence}%` : "Not recorded"],
+                  ["Last updated", fresh?.label],
+                  ["Source snapshot", election.sourceSnapshotAt ? new Date(election.sourceSnapshotAt).toLocaleDateString("en-IN") : "Not recorded"],
+                ].map(([label, value]) => (
+                  <div key={label} className="row-line">
+                    <span style={{ flex: 1, fontSize: 13, color: "var(--paper-dim)" }}>{label}</span>
+                    <span style={{ fontFamily: "var(--mono)", fontSize: 13, fontWeight: 700, color: fresh?.stale && label === "Last updated" ? "var(--red)" : "var(--paper)" }}>{value}</span>
                   </div>
                 ))}
+                {election.methodology && (
+                  <p style={{ fontSize: 13, lineHeight: 1.55, color: "var(--paper-dim)", marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
+                    {election.methodology}
+                  </p>
+                )}
                 <div className="status-banner needs" style={{ marginTop: 18 }}>
-                  Current status: manually maintained estimate, not a certified or automated forecast
+                  {election.modelName === "manual-estimate"
+                    ? "This is a manually maintained estimate, not an automated forecast — there is no live turnout/sentiment pipeline behind it yet."
+                    : `Model: ${election.modelName}`}
                 </div>
               </div>
             </div>

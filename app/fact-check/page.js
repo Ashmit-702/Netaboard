@@ -3,7 +3,7 @@ import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 import FactCheckForm from "@/components/FactCheckForm";
 
-export const metadata = { title: "AI Fact Check — NetaBoard" };
+export const metadata = { title: "Fact Check — NetaBoard" };
 
 export default function FactCheckPage() {
   return (
@@ -11,9 +11,13 @@ export default function FactCheckPage() {
       <Ticker />
       <Nav />
       <section className="wrap">
-        <div className="eyebrow">AI Fact Check</div>
-        <h2 className="title">Paste a claim. Get a verdict.</h2>
-        <p className="sub">True, Misleading, Needs Context, or False — with a short neutral explanation. Every check is logged for review.</p>
+        <div className="eyebrow">Fact Check</div>
+        <h2 className="title">The evidence is the authority.</h2>
+        <p className="sub">
+          Every claim is checked against Google's published fact-check database before an AI reasons
+          about it — the AI explains what the evidence shows, it doesn't replace it. Every check is
+          logged for review.
+        </p>
         <FactCheckForm />
       </section>
       <Footer />
