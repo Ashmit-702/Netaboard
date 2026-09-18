@@ -16,11 +16,7 @@ export default async function ConstituenciesPage() {
       <section className="wrap">
         <div className="eyebrow">Constituency Dashboard</div>
         <h2 className="title">Every seat, broken down.</h2>
-        <p className="sub">
-          Every result below is tied to a specific election — never a bare "current" number. Most seats
-          here are historical results (their most recent recorded election), shown for reference rather
-          than implied to be live.
-        </p>
+        <p className="sub">Each result is tied to the election it came from.</p>
 
         <div className="grid-2">
           {list.map((c) => {

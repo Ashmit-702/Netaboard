@@ -32,7 +32,23 @@ function headlineFor(change) {
   }
 }
 
-export default function HeroToday({ change }) {
+import TodayStory from "./TodayStory";
+
+// Priority: a genuinely current news story (from live feeds) leads; an
+// internal data change is the fallback; an honest empty state is last.
+// A real-world development should always outrank an internal DB delta.
+export default function HeroToday({ change, newsStory }) {
+  if (newsStory) {
+    return (
+      <section className="wrap" style={{ paddingTop: 56, paddingBottom: 44 }}>
+        <div className="eyebrow">Today's Political Picture</div>
+        <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 700, color: "var(--paper-faint)", textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 10 }}>
+          Politics, with receipts.
+        </div>
+        <TodayStory story={newsStory} />
+      </section>
+    );
+  }
   if (!change) {
     return (
       <section className="wrap" style={{ paddingTop: 64, paddingBottom: 40 }}>

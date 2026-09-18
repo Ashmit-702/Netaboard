@@ -22,10 +22,7 @@ export default async function PredictionsPage() {
           <>
             <div className="eyebrow">{election.name}</div>
             <h2 className="title">The prediction — and exactly what it's built on.</h2>
-            <p className="sub">
-              Every field below is read directly from the <code>predictions</code> table — nothing here
-              is implied or dressed up. If a field says "manual-estimate," that's what it actually is.
-            </p>
+            <p className="sub">Model, confidence and methodology, as recorded.</p>
 
             <div className="grid-2">
               <Gauge
