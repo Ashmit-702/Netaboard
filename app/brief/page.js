@@ -8,12 +8,9 @@ export const metadata = { title: "Daily AI Brief — NetaBoard" };
 export default async function BriefPage() {
   const brief = await getDailyBrief();
   const content = brief?.content || {
-    headline: "Demo brief — connect Supabase and run /api/daily-brief to generate a real one.",
-    stories: [
-      { title: "Bihar 2026 model updated", summary: "NDA win probability moved to 72% on new turnout data." },
-      { title: "Coalition talks continue", summary: "Smaller allies weigh seat-sharing ahead of the filing deadline." },
-    ],
-    watch_today: "Watch for the next round of constituency-level polling.",
+    headline: "No brief has been generated yet.",
+    stories: [],
+    watch_today: "Today's brief will appear here once it has been generated.",
   };
 
   return (

@@ -23,6 +23,42 @@ async function getElections() {
 export default async function CalendarPage() {
   const elections = await getElections();
   const today = new Date();
+  const RECENT_DAYS = 180; // results within ~6 months count as "recent"
+
+  // Grouped by what each election actually is, from its real date/status —
+  // never labeling a completed election "upcoming" or making it look live.
+  const upcoming = [];
+  const recentResults = [];
+  const archive = [];
+  for (const e of elections) {
+    const date = new Date(e.election_date);
+    const daysSince = Math.floor((today - date) / 86400000);
+    if (daysSince < 0) upcoming.push({ ...e, daysUntil: -daysSince });
+    else if (daysSince <= RECENT_DAYS) recentResults.push({ ...e, daysSince });
+    else archive.push({ ...e, daysSince });
+  }
+  upcoming.sort((a, b) => a.daysUntil - b.daysUntil);
+  recentResults.sort((a, b) => a.daysSince - b.daysSince);
+  archive.sort((a, b) => a.daysSince - b.daysSince);
+
+  const Group = ({ label, items, render, empty }) => (
+    <div style={{ marginBottom: 36 }}>
+      <div style={{ fontFamily: "var(--sans)", fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--paper-faint)", marginBottom: 12, borderBottom: "1px solid var(--line)", paddingBottom: 10 }}>
+        {label}
+      </div>
+      {items.length ? items.map((e) => (
+        <div key={e.name} className="row-line" style={{ padding: "14px 0", display: "flex", alignItems: "center" }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 700, fontSize: 14.5 }}>{e.name}</div>
+            <div style={{ fontSize: 12, color: "var(--paper-faint)", fontFamily: "var(--mono)" }}>
+              {e.region} · {new Date(e.election_date).toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}
+            </div>
+          </div>
+          {render(e)}
+        </div>
+      )) : <div style={{ fontSize: 13, color: "var(--paper-faint)", padding: "12px 0" }}>{empty}</div>}
+    </div>
+  );
 
   return (
     <>
@@ -31,24 +67,26 @@ export default async function CalendarPage() {
       <section className="wrap">
         <div className="eyebrow">Election Calendar</div>
         <h2 className="title">Every election, one timeline.</h2>
-        <p className="sub">Upcoming and recent elections with a live countdown, status, and a link straight into predictions.</p>
-        <div className="card" style={{ padding: 0 }}>
-          {elections.map((e, i) => {
-            const date = new Date(e.election_date);
-            const days = Math.ceil((date - today) / 86400000);
-            return (
-              <div key={e.name} className="row-line" style={{ padding: "18px 24px", borderTop: i === 0 ? "none" : "1px solid var(--line)" }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700, fontSize: 14.5 }}>{e.name}</div>
-                  <div style={{ fontSize: 12, color: "var(--paper-faint)", fontFamily: "var(--mono)" }}>{e.region} · {date.toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}</div>
-                </div>
-                <span className="tag" style={{ color: days > 0 ? "var(--amber)" : "var(--paper-faint)" }}>
-                  {days > 0 ? `${days} days to go` : "Concluded"}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+        <p className="sub">Grouped by what each election actually is right now — upcoming, recently decided, or historical.</p>
+
+        <Group
+          label="Upcoming"
+          items={upcoming}
+          empty="No upcoming elections with confirmed dates."
+          render={(e) => <span className="tag" style={{ color: "var(--amber)", borderColor: "var(--amber)" }}>{e.daysUntil} days to go</span>}
+        />
+        <Group
+          label="Recent Results"
+          items={recentResults}
+          empty="No elections decided in the last six months."
+          render={() => <span className="tag" style={{ color: "var(--mint)", borderColor: "var(--mint)" }}>Results</span>}
+        />
+        <Group
+          label="Archive"
+          items={archive}
+          empty="No historical elections recorded."
+          render={() => <span className="tag" style={{ color: "var(--paper-faint)" }}>Archive</span>}
+        />
       </section>
       <Footer />
     </>
