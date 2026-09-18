@@ -1,5 +1,4 @@
 import Nav from "@/components/Nav";
-import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 
 export const metadata = { title: "Historical Election Explorer — NetaBoard" };
@@ -16,7 +15,6 @@ const elections = [
 export default function HistoryPage() {
   return (
     <>
-      <Ticker />
       <Nav />
       <section className="wrap">
         <div className="eyebrow">Historical Election Explorer</div>

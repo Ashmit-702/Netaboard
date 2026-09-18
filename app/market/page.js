@@ -1,5 +1,4 @@
 import Nav from "@/components/Nav";
-import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 import VoteWidget from "@/components/VoteWidget";
 import { adaptElectionForGauge, getPredictors } from "@/lib/data";
@@ -14,7 +13,6 @@ export default async function MarketPage() {
 
   return (
     <>
-      <Ticker />
       <Nav />
       <section className="wrap">
         <div className="eyebrow">Crowd Prediction Market</div>

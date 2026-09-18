@@ -1,5 +1,4 @@
 import Nav from "@/components/Nav";
-import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 import CoalitionBuilder from "@/components/CoalitionBuilder";
 import { getParties } from "@/lib/data";
@@ -14,7 +13,6 @@ export default async function CoalitionPage() {
 
   return (
     <>
-      <Ticker />
       <Nav />
       <section className="wrap">
         <div className="eyebrow">Coalition Builder</div>

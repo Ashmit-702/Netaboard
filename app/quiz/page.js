@@ -1,5 +1,4 @@
 import Nav from "@/components/Nav";
-import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 import QuizWidget from "@/components/QuizWidget";
 import { getQuiz } from "@/lib/data";
@@ -18,7 +17,6 @@ export default async function QuizPage() {
 
   return (
     <>
-      <Ticker />
       <Nav />
       <section className="wrap">
         <div className="eyebrow">Political IQ Quiz</div>

@@ -1,5 +1,4 @@
 import Nav from "@/components/Nav";
-import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 import { getConstituencies } from "@/lib/data";
 
@@ -16,7 +15,6 @@ export default async function HeatmapPage() {
 
   return (
     <>
-      <Ticker />
       <Nav />
       <section className="wrap">
         <div className="eyebrow">Constituency Grid</div>

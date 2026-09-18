@@ -1,5 +1,4 @@
 import Nav from "@/components/Nav";
-import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 import StoryBehindNumber from "@/components/StoryBehindNumber";
 import { getStocks } from "@/lib/data";
@@ -12,7 +11,6 @@ export default async function StockMarketPage() {
 
   return (
     <>
-      <Ticker />
       <Nav />
       <section className="wrap">
         <div className="eyebrow">Political Attention Index</div>

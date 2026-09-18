@@ -1,5 +1,4 @@
 import Nav from "@/components/Nav";
-import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 import ManifestoCompare from "@/components/ManifestoCompare";
 
@@ -8,7 +7,6 @@ export const metadata = { title: "Manifesto Comparison — NetaBoard" };
 export default function ManifestoPage() {
   return (
     <>
-      <Ticker />
       <Nav />
       <section className="wrap">
         <div className="eyebrow">AI Manifesto Comparison</div>

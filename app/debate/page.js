@@ -1,5 +1,4 @@
 import Nav from "@/components/Nav";
-import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 import DebateArena from "@/components/DebateArena";
 import { getDebate } from "@/lib/data";
@@ -20,7 +19,6 @@ export default async function DebatePage() {
 
   return (
     <>
-      <Ticker />
       <Nav />
       <section className="wrap">
         <div className="eyebrow">Debate Arena</div>

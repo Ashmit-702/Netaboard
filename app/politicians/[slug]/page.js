@@ -1,5 +1,4 @@
 import Nav from "@/components/Nav";
-import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 import AccountabilityScoreCard from "@/components/AccountabilityScoreCard";
 import EvidenceLedgerItem from "@/components/EvidenceLedgerItem";
@@ -14,7 +13,6 @@ export default async function PoliticianPage({ params }) {
 
   return (
     <>
-      <Ticker />
       <Nav />
       <section className="wrap">
         <div className="eyebrow">Politician Profile</div>

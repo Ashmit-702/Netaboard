@@ -1,5 +1,4 @@
 import Nav from "@/components/Nav";
-import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 import FactCheckForm from "@/components/FactCheckForm";
 
@@ -8,7 +7,6 @@ export const metadata = { title: "Fact Check — NetaBoard" };
 export default function FactCheckPage() {
   return (
     <>
-      <Ticker />
       <Nav />
       <section className="wrap">
         <div className="eyebrow">Fact Check</div>

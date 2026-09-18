@@ -1,5 +1,4 @@
 import Nav from "@/components/Nav";
-import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 import Gauge from "@/components/Gauge";
 import { adaptElectionForGauge } from "@/lib/data";
@@ -15,7 +14,6 @@ export default async function PredictionsPage() {
 
   return (
     <>
-      <Ticker />
       <Nav />
       <section className="wrap">
         {election ? (

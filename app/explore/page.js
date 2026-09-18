@@ -1,5 +1,4 @@
 import Nav from "@/components/Nav";
-import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 import { getRisk } from "@/lib/data";
 
@@ -32,7 +31,6 @@ export default async function ExplorePage() {
 
   return (
     <>
-      <Ticker />
       <Nav />
       <section className="wrap">
         <div className="eyebrow">Geopolitical Risk Meter</div>

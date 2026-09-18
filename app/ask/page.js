@@ -1,5 +1,4 @@
 import Nav from "@/components/Nav";
-import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 import AskChat from "@/components/AskChat";
 import { Suspense } from "react";
@@ -9,7 +8,6 @@ export const metadata = { title: "Ask Politics — NetaBoard" };
 export default function AskPage() {
   return (
     <>
-      <Ticker />
       <Nav />
       <section className="wrap">
         <div className="eyebrow">Ask Politics (AI)</div>

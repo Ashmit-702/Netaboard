@@ -1,5 +1,4 @@
 import Nav from "@/components/Nav";
-import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 import { getDailyBrief } from "@/lib/data";
 
@@ -15,7 +14,6 @@ export default async function BriefPage() {
 
   return (
     <>
-      <Ticker />
       <Nav />
       <section className="wrap">
         <div className="eyebrow">Daily AI Brief</div>

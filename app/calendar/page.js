@@ -1,5 +1,4 @@
 import Nav from "@/components/Nav";
-import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 import { supabaseServer } from "@/lib/supabaseServer";
 
@@ -62,7 +61,6 @@ export default async function CalendarPage() {
 
   return (
     <>
-      <Ticker />
       <Nav />
       <section className="wrap">
         <div className="eyebrow">Election Calendar</div>

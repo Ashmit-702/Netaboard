@@ -1,5 +1,4 @@
 import Nav from "@/components/Nav";
-import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
 
 export const metadata = { title: "About & Methodology — NetaBoard" };
@@ -7,7 +6,6 @@ export const metadata = { title: "About & Methodology — NetaBoard" };
 export default function AboutPage() {
   return (
     <>
-      <Ticker />
       <Nav />
       <section className="wrap" style={{ maxWidth: 760 }}>
         <div className="eyebrow">About &amp; Methodology</div>
