@@ -1,60 +1,35 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import { getRisk } from "@/lib/data";
 
 export const metadata = { title: "Explore — NetaBoard" };
 
-export default async function ExplorePage() {
-  const risk = await getRisk();
+const groups = [
+  ["Analysis", [
+    ["Election Predictions", "/predictions", "Model, confidence, and methodology — as recorded."],
+    ["Crowd Forecast", "/market", "Crowd-sourced predictions with an accuracy leaderboard."],
+    ["Political Attention", "/attention", "Attention volume, not approval — see the underlying signals."],
+  ]],
+  ["Deep Dives", [
+    ["AI Manifesto Comparison", "/manifesto", "Two manifestos, compared issue by issue."],
+    ["Historical Explorer", "/history", "Every Lok Sabha result since 1952."],
+    ["Coalition Builder", "/coalition", "Tap parties, watch the majority line move."],
+  ]],
+  ["Community / Share", [
+    ["Debate Arena", "/debate", "Structured for/against arguments, ranked by vote."],
+    ["Political IQ Quiz", "/quiz", "Guess winners, seats, and symbols."],
+    ["Political Meme Generator", "/memes", "Make one, download it, share it."],
+  ]],
+  ["Tools", [
+    ["Daily Brief Archive", "/brief", "Today's generated brief, with sources."],
+    ["Election Calendar", "/calendar", "Upcoming, recent results, and archive, grouped clearly."],
+  ]],
+];
 
-  const groups = [
-    ["Politics", [
-      ["Coalition Builder", "/coalition", "Tap parties, watch the majority line move."],
-      ["AI Manifesto Comparison", "/manifesto", "Two manifestos, compared issue by issue."],
-      ["Historical Explorer", "/history", "Every Lok Sabha result since 1952."],
-    ]],
-    ["Analysis", [
-      ["Prediction Market", "/market", "Crowd-sourced forecasts with an accuracy leaderboard."],
-      ["Political Attention", "/stock-market", "Attention volume, not approval — see the underlying signals."],
-      ["Constituency Grid", "/heatmap", "Every constituency, colored by lead."],
-    ]],
-    ["Community", [
-      ["Debate Arena", "/debate", "Structured for/against arguments, ranked by vote."],
-      ["Political IQ Quiz", "/quiz", "Guess winners, seats, and symbols."],
-      ["Political Meme Generator", "/memes", "Make one, download it, share it."],
-    ]],
-    ["Tools", [
-      ["Daily AI Brief", "/brief", "Today's politics in five minutes, with sources."],
-      ["Election Calendar", "/calendar", "Every election, one countdown timeline."],
-    ]],
-  ];
-
+export default function ExplorePage() {
   return (
     <>
       <Nav />
       <section className="wrap">
-        <div className="eyebrow">Geopolitical Risk Meter</div>
-        <h2 className="title">Every country, at a glance.</h2>
-        <p className="sub">War risk, economic risk, and political stability — condensed into three numbers per country.</p>
-        <div className="grid-3">
-          {risk.map((r) => (
-            <div key={r.country} className="card">
-              <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 16 }}>{r.country}</div>
-              {[["War Risk", r.war_risk, "var(--red)"], ["Economic Risk", r.economic_risk, "var(--amber)"], ["Political Stability", r.political_stability, "var(--mint)"]].map(([label, val, color]) => (
-                <div key={label} style={{ marginBottom: 12 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, marginBottom: 5 }}>
-                    <span style={{ color: "var(--paper-dim)" }}>{label}</span>
-                    <span style={{ fontFamily: "var(--mono)", color }}>{val}%</span>
-                  </div>
-                  <div className="bar-track"><div className="bar-fill" style={{ width: val + "%", background: color }} /></div>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="wrap tight">
         <div className="eyebrow">Explore</div>
         <h2 className="title">The rest of the toolkit.</h2>
         {groups.map(([groupName, items]) => (

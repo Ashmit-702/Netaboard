@@ -1,6 +1,16 @@
 -- ============================================================
--- NETABOARD — seed data
--- Run after schema.sql. Safe to re-run (uses deletes first).
+-- NETABOARD — DEMO / LOCAL SEED DATA — OPTIONAL, NOT FOR PRODUCTION
+--
+-- WARNING: This script DELETES real data in these tables before inserting
+-- demo rows. It is meant for a fresh local/demo database only.
+--
+-- DO NOT run this against a production database with real politicians,
+-- promises, evidence, or elections in it — the DELETE statements below
+-- will destroy that data irreversibly.
+--
+-- Production setup only needs schema.sql and supabase/migrations/, in
+-- order. This file is entirely optional. See README.md -> "Production
+-- setup" vs. "Optional demo data".
 -- ============================================================
 
 delete from promises;
@@ -10,8 +20,6 @@ delete from predictions;
 delete from politicians;
 delete from parties;
 delete from elections;
-delete from constituencies;
-delete from geopolitical_risk;
 delete from quiz_questions;
 delete from debates;
 delete from predictors;
@@ -66,25 +74,12 @@ insert into predictions (election_id, option_label, probability, recorded_at) va
 ((select id from elections limit 1), 'NDA', 72, now()),
 ((select id from elections limit 1), 'Mahagathbandhan', 28, now());
 
--- ---------- CONSTITUENCY DASHBOARD (sample) ----------
-insert into constituencies (name, state, current_rep, party_id, vote_share, margin, turnout, demographics, development_index) values
-('Patna Sahib', 'Bihar', 'Ravi Shankar Prasad', (select id from parties where abbreviation='BJP'), 55.2, 12.4, 58.6,
-  '{"urban_pct":72,"farmer_pct":8,"youth_pct":34}', '{"roads":7.8,"education":7.1,"healthcare":6.4}'),
-('Raghopur', 'Bihar', 'Tejashwi Yadav', (select id from parties where abbreviation='RJD'), 51.8, 6.2, 61.3,
-  '{"urban_pct":22,"farmer_pct":48,"youth_pct":31}', '{"roads":5.9,"education":5.4,"healthcare":4.8}');
-
--- ---------- POLITICAL STOCK MARKET ----------
+-- ---------- POLITICAL ATTENTION ----------
 insert into stock_prices (politician_id, price, change_pct, reason) values
 ((select id from politicians where slug='narendra-modi'), 187.40, 3.1, 'Positive coverage after infrastructure announcement'),
 ((select id from politicians where slug='nitish-kumar'), 92.10, -1.4, 'Coalition friction reported'),
 ((select id from politicians where slug='tejashwi-yadav'), 104.60, 4.2, 'Strong rally turnout in Bihar'),
 ((select id from politicians where slug='rahul-gandhi'), 78.30, -0.6, 'Mixed reception to campaign speech');
-
--- ---------- GEOPOLITICAL RISK METER ----------
-insert into geopolitical_risk (country, war_risk, economic_risk, political_stability, relations) values
-('India', 15, 20, 83, '{"USA":"up","China":"down","Russia":"up"}'),
-('Pakistan', 34, 58, 41, '{"USA":"down","China":"up","India":"down"}'),
-('China', 22, 30, 76, '{"USA":"down","India":"down","Russia":"up"}');
 
 -- ---------- QUIZ ----------
 insert into quiz_questions (question, options, correct_index, category) values

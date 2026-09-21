@@ -1,5 +1,5 @@
 // Shows 3-5 politicians with the strongest real attention movement — never
-// more, and never fabricated. Sourced from lib/data.js's getStocks(), which
+// more, and never fabricated. Sourced from lib/data.js's getAttention(), which
 // itself is built from real signals (Wikipedia pageviews, GDELT, Hacker
 // News, Mastodon — see lib/social.js). Explicitly NOT a popularity ranking.
 export default function TrendingNetas({ stocks, compact = false }) {

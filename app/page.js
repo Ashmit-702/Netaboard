@@ -1,12 +1,12 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import TrendingNetas from "@/components/TrendingNetas";
-import { getPoliticians, getStocks } from "@/lib/data";
+import { getPoliticians, getAttention } from "@/lib/data";
 
 export const metadata = { title: "Politician Tracker — NetaBoard" };
 
 export default async function PoliticiansPage() {
-  const [politicians, stocks] = await Promise.all([getPoliticians(), getStocks()]);
+  const [politicians, stocks] = await Promise.all([getPoliticians(), getAttention()]);
 
   return (
     <>

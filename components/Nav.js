@@ -4,10 +4,9 @@ import { useState } from "react";
 
 const links = [
   ["/", "Today"],
-  ["/predictions", "Elections"],
   ["/politicians", "Politicians"],
-  ["/fact-check", "Fact Check"],
-  ["/constituencies", "Constituencies"],
+  ["/predictions", "Elections"],
+  ["/fact-check", "Evidence"],
   ["/explore", "Explore"],
 ];
 

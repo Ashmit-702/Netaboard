@@ -12,7 +12,7 @@ export function pickTheNumber(changes) {
 
 // Deliberately concise on the homepage — value, delta, one-line why, one
 // link out. The full per-source breakdown (see StoryBehindNumber) lives on
-// the relevant detail page (/stock-market), not the front page — raw
+// the relevant detail page (/attention), not the front page — raw
 // source names in a list is exactly the "API demo" clutter to avoid here.
 export default function TheNumber({ change }) {
   if (!change) {
