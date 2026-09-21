@@ -62,17 +62,14 @@ insert into timeline_events (politician_id, event_date, title, category) values
 ((select id from politicians where slug='tejashwi-yadav'), '2015-11-20', 'Sworn in as Deputy Chief Minister of Bihar', 'cabinet'),
 ((select id from politicians where slug='narendra-modi'), '2024-01-22', 'Inaugurated Ram Mandir in Ayodhya', 'achievement');
 
--- ---------- ELECTION + PREDICTION HISTORY ----------
-insert into elections (name, region, election_date, status, description) values
-('Bihar Assembly Election 2026', 'Bihar', '2026-11-10', 'upcoming', 'Election for all 243 seats of the Bihar Legislative Assembly.');
-
-insert into predictions (election_id, option_label, probability, recorded_at) values
-((select id from elections limit 1), 'NDA', 60, now() - interval '25 days'),
-((select id from elections limit 1), 'Mahagathbandhan', 40, now() - interval '25 days'),
-((select id from elections limit 1), 'NDA', 67, now() - interval '11 days'),
-((select id from elections limit 1), 'Mahagathbandhan', 33, now() - interval '11 days'),
-((select id from elections limit 1), 'NDA', 72, now()),
-((select id from elections limit 1), 'Mahagathbandhan', 28, now());
+-- No demo election is seeded. A previous version of this file created a
+-- fictional "Bihar Assembly Election 2026" here — even though a later
+-- migration flagged it is_demo, running schema.sql + seed.sql ALONE (no
+-- migrations) would have surfaced it as a real current election, which is
+-- exactly what this app is built not to do. If you want a demo election to
+-- exercise Election Watch, add one explicitly and mark it is_demo = true
+-- from the start (see supabase/migrations/008_mark_demo_election.sql for
+-- the column) — don't rely on a later migration to retroactively fix it.
 
 -- ---------- POLITICAL ATTENTION ----------
 insert into stock_prices (politician_id, price, change_pct, reason) values
