@@ -1,24 +1,7 @@
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
-import FactCheckForm from "@/components/FactCheckForm";
+import { redirect } from "next/navigation";
 
-export const metadata = { title: "Fact Check — NetaBoard" };
-
-export default function FactCheckPage() {
-  return (
-    <>
-      <Nav />
-      <section className="wrap">
-        <div className="eyebrow">Fact Check</div>
-        <h2 className="title">The evidence is the authority.</h2>
-        <p className="sub">
-          Every claim is checked against Google's published fact-check database before an AI reasons
-          about it — the AI explains what the evidence shows, it doesn't replace it. Every check is
-          logged for review.
-        </p>
-        <FactCheckForm />
-      </section>
-      <Footer />
-    </>
-  );
+// Fact Check now lives inside the Evidence hub (/evidence#check).
+export const dynamic = "force-dynamic";
+export default function FactCheckRedirect() {
+  redirect("/evidence#check");
 }

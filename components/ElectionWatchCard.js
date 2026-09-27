@@ -1,43 +1,35 @@
-import { freshnessLabel } from "@/lib/freshness";
+import { STATE_LABEL } from "@/lib/elections/classify";
+import { formatISTDate } from "@/lib/time";
 
-const tierLabel = {
-  active: "Active now",
-  concluded: "Recently concluded",
-  upcoming: "Upcoming",
-  archive: "Archive",
-};
-
-export default function ElectionWatchCard({ election }) {
-  if (!election) {
-    return (
-      <div className="card" style={{ color: "var(--paper-dim)" }}>
-        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>No major election movement today.</div>
-        <a href="/calendar" style={{ fontSize: 13, color: "var(--amber)", textDecoration: "underline" }}>Explore the election archive →</a>
-      </div>
-    );
-  }
-
-  const fresh = election.summary ? freshnessLabel(election.summary.timestamp) : { label: "No probability estimate recorded", stale: true };
-
+export function StateBadge({ election }) {
+  const cls = { LIVE: "live", UPCOMING: "upcoming", RESULTS: "results", ARCHIVE: "archive", NOT_ENOUGH_DATA: "nodata" }[election.state];
   return (
-    <a href={election.href} className="card" style={{ display: "block" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-        <span className="tag" style={{ color: "var(--amber)", borderColor: "var(--amber)" }}>{tierLabel[election.tier] || election.status}</span>
-        <span style={{ fontSize: 11, fontFamily: "var(--mono)", color: fresh.stale ? "var(--red)" : "var(--paper-faint)" }}>{fresh.label}</span>
+    <span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
+      <span className={`state ${cls}`}>{STATE_LABEL[election.state]}</span>
+      {election.recent && <span className="state results" style={{ borderStyle: "dashed" }}>Recent</span>}
+    </span>
+  );
+}
+
+// Homepage Election Watch. Rendered only when a genuinely current election
+// exists (see selectElectionWatch) — the page omits the section otherwise.
+export default function ElectionWatchCard({ election }) {
+  if (!election) return null;
+  return (
+    <a href={`/elections/${election.id}`} style={{ display: "block", padding: "6px 0" }}>
+      <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 8 }}>
+        <StateBadge election={election} />
+        <span className="meta">{election.region} · {formatISTDate(election.election_date)}</span>
       </div>
-      <div style={{ fontWeight: 800, fontSize: 20, marginBottom: 6 }}>{election.name}</div>
+      <h3 style={{ fontSize: "clamp(22px,3vw,30px)", fontWeight: 800 }}>{election.name}</h3>
       {election.summary ? (
-        <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 12 }}>
-          <span style={{ fontFamily: "var(--mono)", fontSize: 15, color: "var(--paper-dim)" }}>{election.summary.label}</span>
-          <span style={{ fontFamily: "var(--mono)", fontSize: 26, fontWeight: 700 }}>{election.summary.value}%</span>
-          {typeof election.summary.delta === "number" && (
-            <span style={{ fontFamily: "var(--mono)", fontSize: 13, fontWeight: 700, color: election.summary.delta > 0 ? "var(--mint)" : "var(--red)" }}>
-              {election.summary.delta > 0 ? "▲" : "▼"} {Math.abs(election.summary.delta)}pp
-            </span>
-          )}
-        </div>
+        <p className="lead-p" style={{ marginTop: 10, marginBottom: 0 }}>
+          Latest recorded estimate: <strong style={{ color: "var(--paper)" }}>{election.summary.label} {election.summary.value}%</strong>
+          {typeof election.summary.delta === "number" && election.summary.delta !== 0 && <> ({election.summary.delta > 0 ? "▲" : "▼"} {Math.abs(election.summary.delta)}pp)</>}
+          {" "}— {election.summary.modelName === "manual-estimate" ? "a manually maintained estimate, not an automated forecast." : `model: ${election.summary.modelName}.`}
+        </p>
       ) : (
-        <div style={{ fontSize: 13, color: "var(--paper-faint)", marginTop: 8 }}>{election.description}</div>
+        <p className="lead-p" style={{ marginTop: 10, marginBottom: 0 }}>{election.hasResults ? "Structured results are available." : "No structured estimate or result has been recorded yet."}</p>
       )}
     </a>
   );

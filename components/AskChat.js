@@ -45,7 +45,7 @@ export default function AskChat() {
       <div style={{ minHeight: 160, marginBottom: 16 }}>
         {messages.length === 0 && (
           <div style={{ color: "var(--paper-faint)", fontSize: 13.5 }}>
-            Try: "Why is the Bihar election important?" or "Explain the coalition math like I'm 15."
+            Try: "Why does this promise matter?" or "Explain the coalition math like I'm 15."
           </div>
         )}
         {messages.map((m, i) => (

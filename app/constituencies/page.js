@@ -5,5 +5,5 @@ import { redirect } from "next/navigation";
 // page would otherwise produce — breaking curl, bots, and non-JS clients.
 export const dynamic = 'force-dynamic';
 export default function ConstituenciesPage() {
-  redirect("/predictions");
+  redirect("/elections");
 }

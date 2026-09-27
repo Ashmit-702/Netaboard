@@ -19,7 +19,7 @@ export default function HistoryPage() {
       <section className="wrap">
         <div className="eyebrow">Historical Election Explorer</div>
         <h2 className="title">Every Lok Sabha election, at a glance.</h2>
-        <p className="sub">Seat counts and turning points since 1952. Expand this table from Supabase once you've loaded full ECI archives.</p>
+        <p className="sub">Seat counts and turning points since 1952 — a static factual reference, not live data.</p>
         <div className="card" style={{ padding: 0 }}>
           {elections.map((e, i) => (
             <div key={e.year} className="row-line" style={{ padding: "18px 24px", borderTop: i === 0 ? "none" : "1px solid var(--line)" }}>

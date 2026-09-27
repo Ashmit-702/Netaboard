@@ -2,12 +2,14 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import VoteWidget from "@/components/VoteWidget";
 import { adaptElectionForGauge, getPredictors } from "@/lib/data";
-import { getElectionWatch } from "@/lib/electionWatch";
+import { getElections } from "@/lib/elections/get";
+import { selectElectionWatch } from "@/lib/elections/classify";
 
 export const metadata = { title: "Prediction Market — NetaBoard" };
 
 export default async function MarketPage() {
-  const watch = await getElectionWatch();
+  const { elections } = await getElections();
+  const watch = selectElectionWatch(elections);
   const election = adaptElectionForGauge(watch);
   const predictors = await getPredictors();
 

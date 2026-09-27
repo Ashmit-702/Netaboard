@@ -35,7 +35,7 @@ export default function EvidenceLedgerItem({ claim }) {
           <div style={{ fontSize: 13.5, lineHeight: 1.4 }}>{claim.text}</div>
           <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 5, flexWrap: "wrap" }}>
             <span className="tag" style={{ color: meta.color, borderColor: meta.color }}>{meta.label}</span>
-            {v && <span style={{ fontSize: 11, color: "var(--paper-faint)", fontFamily: "var(--mono)" }}>{v.confidence}% confidence</span>}
+            {v && v.confidence != null && <span style={{ fontSize: 11, color: "var(--paper-faint)", fontFamily: "var(--mono)" }}>{v.confidence}% confidence</span>}
             <span style={{ fontSize: 11, color: "var(--amber)" }}>{open ? "hide evidence ▲" : "show evidence ▼"}</span>
           </div>
         </div>

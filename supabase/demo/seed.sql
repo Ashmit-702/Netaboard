@@ -1,16 +1,16 @@
 -- ============================================================
 -- NETABOARD — DEMO / LOCAL SEED DATA — OPTIONAL, NOT FOR PRODUCTION
 --
--- WARNING: This script DELETES real data in these tables before inserting
--- demo rows. It is meant for a fresh local/demo database only.
+-- Moved to supabase/demo/ (out of supabase/migrations/ and the supabase/
+-- top level) specifically so a production setup that runs schema.sql +
+-- migrations/*.sql in order NEVER touches this file.
+--
+-- WARNING: This script DELETES rows in these tables before inserting demo
+-- rows. It is meant for a fresh local/demo database only.
 --
 -- DO NOT run this against a production database with real politicians,
 -- promises, evidence, or elections in it — the DELETE statements below
 -- will destroy that data irreversibly.
---
--- Production setup only needs schema.sql and supabase/migrations/, in
--- order. This file is entirely optional. See README.md -> "Production
--- setup" vs. "Optional demo data".
 -- ============================================================
 
 delete from promises;
@@ -26,14 +26,14 @@ delete from predictors;
 
 -- ---------- PARTIES (Bihar Legislative Assembly, 2020 result — 243 seats, 122 to govern) ----------
 insert into parties (name, abbreviation, color, region, seats_current) values
-('Bharatiya Janata Party', 'BJP', '#ffb800', 'bihar_2020', 74),
-('Rashtriya Janata Dal', 'RJD', '#00d9a3', 'bihar_2020', 79),
-('Janata Dal (United)', 'JD(U)', '#7b84a3', 'bihar_2020', 43),
-('Indian National Congress', 'Congress', '#5b8def', 'bihar_2020', 19),
-('Lok Janshakti Party (Ram Vilas)', 'LJP(RV)', '#e05b8e', 'bihar_2020', 5),
-('Hindustani Awam Morcha', 'HAM', '#c98bff', 'bihar_2020', 4),
-('Vikassheel Insaan Party', 'VIP', '#4dd2ff', 'bihar_2020', 4),
-('Independents', 'IND', '#9aa3bd', 'bihar_2020', 15);
+('Bharatiya Janata Party', 'BJP', '#ffb800', 'demo-2020', 74),
+('Rashtriya Janata Dal', 'RJD', '#00d9a3', 'demo-2020', 79),
+('Janata Dal (United)', 'JD(U)', '#7b84a3', 'demo-2020', 43),
+('Indian National Congress', 'Congress', '#5b8def', 'demo-2020', 19),
+('Lok Janshakti Party (Ram Vilas)', 'LJP(RV)', '#e05b8e', 'demo-2020', 5),
+('Hindustani Awam Morcha', 'HAM', '#c98bff', 'demo-2020', 4),
+('Vikassheel Insaan Party', 'VIP', '#4dd2ff', 'demo-2020', 4),
+('Independents', 'IND', '#9aa3bd', 'demo-2020', 15);
 
 -- ---------- POLITICIANS ----------
 insert into politicians (slug, name, role, party_id, bio) values

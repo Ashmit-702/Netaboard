@@ -12,9 +12,12 @@
 -- like — everything else still needs real evidence added.
 -- ============================================================
 
-delete from verdicts;
-delete from evidence;
-delete from claims;
+-- SAFE TO RE-RUN, but scoped: only ever touches claims of type 'promise'
+-- that this script itself creates below, never a real fact_check/statement
+-- claim or evidence added by the app since this migration first ran.
+delete from verdicts where claim_id in (select id from claims where claim_type = 'promise');
+delete from evidence where claim_id in (select id from claims where claim_type = 'promise');
+delete from claims where claim_type = 'promise';
 
 -- ---------- Migrate every legacy promise as an unverified starting point ----------
 insert into claims (politician_id, claim_type, text, claimant, source_url)

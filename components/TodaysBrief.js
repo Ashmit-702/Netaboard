@@ -1,97 +1,67 @@
-function ageLabel(h) {
-  if (h === null || h === undefined) return null;
-  if (h < 1) return "Just now";
-  if (h < 2) return "1 hour ago";
-  if (h < 24) return `${Math.round(h)} hours ago`;
-  if (h < 48) return "Yesterday";
-  return `${Math.round(h / 24)} days ago`;
-}
+import RelTime from "./RelTime";
+import { kickerText } from "./StoryRow";
+import { formatISTClock } from "@/lib/time";
 
-/**
- * TODAY'S BRIEF — the homepage's lead editorial element.
- *
- * Built from the live clustering pipeline (lib/trending.js), with the
- * stored AI brief (daily_briefs) used only as supporting "what to watch"
- * context. Live stories always lead: a real development must outrank a
- * cached summary. Nothing is fabricated — if the feeds return nothing,
- * this renders an honest empty state.
- */
-export default function TodaysBrief({ stories, storedBrief }) {
-  const lead = stories?.[0] || null;
-  const supporting = (stories || []).slice(1, 5);
-  const watch = storedBrief?.watch_today || null;
-
-  if (!lead) {
+// TODAY'S BRIEF — the homepage hero. Lead story, 3-5 further developments,
+// what to watch, timestamp. Built from the Current Affairs engine
+// (lib/brief). Asymmetric editorial layout: lead left, compact list right.
+export default function TodaysBrief({ brief, status }) {
+  if (!brief) {
     return (
       <div>
-        <h1 style={{ fontSize: "clamp(28px,4vw,42px)", lineHeight: 1.1, marginBottom: 14, maxWidth: 760 }}>
-          No current stories available.
+        <h1 className="lead-h" style={{ maxWidth: 760 }}>
+          {status === "failed" ? "Current affairs couldn’t be refreshed right now." : "No major current-affairs updates right now."}
         </h1>
-        <p style={{ fontSize: 16, color: "var(--paper-dim)", lineHeight: 1.6, maxWidth: 620 }}>
-          Today&apos;s brief builds from live news coverage. Nothing is being surfaced right now —
-          rather than showing older material, this space stays empty until there is something real to
-          report.
+        <p className="lead-p">
+          {status === "failed"
+            ? "The news feeds did not respond. Nothing older is shown in its place — this space stays honest until the feeds recover."
+            : "Today’s brief is assembled from what is actually being reported. When something significant is, it will lead here."}
         </p>
       </div>
     );
   }
-
+  const { lead, developments, watch, aiWatch } = brief;
   return (
-    <div>
-      <h1 style={{ fontSize: "clamp(30px,4.6vw,50px)", lineHeight: 1.07, marginBottom: 16, maxWidth: 880 }}>
-        {lead.headline}
-      </h1>
-
-      {lead.summary && (
-        <p style={{ fontSize: 17.5, color: "var(--paper-dim)", lineHeight: 1.6, maxWidth: 720, marginBottom: 18 }}>
-          {lead.summary}
-        </p>
-      )}
-
-      <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", marginBottom: 34 }}>
-        {lead.url && <a href={lead.url} target="_blank" rel="noreferrer" className="btn btn-primary">Read more</a>}
-        <span style={{ fontSize: 12, color: "var(--paper-faint)", fontFamily: "var(--mono)" }}>
-          {ageLabel(lead.hoursOld)}
-          {lead.outletCount > 1 && ` · ${lead.outletCount} outlets covering`}
-        </span>
+    <div className="ed-grid">
+      <div>
+        <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 10 }}>
+          <span className="kicker">Lead story · {kickerText(lead)}</span>
+          {lead.status && <span className={`flag ${lead.status === "DEVELOPING" ? "dev" : ""}`}>{lead.status}</span>}
+        </div>
+        <a href={lead.url} target="_blank" rel="noreferrer"><h1 className="lead-h">{lead.headline}</h1></a>
+        {lead.summaryText && <p className="lead-p">{lead.summaryText}{lead.summaryIsGenerated && <span className="meta" style={{ display: "inline", marginLeft: 8 }}>· AI-assisted summary of the reporting</span>}</p>}
+        <div className="meta" style={{ marginBottom: 6 }}>
+          <RelTime iso={lead.newestAt} />
+          {lead.outletCount > 1 && <span>{lead.outletCount} outlets reporting</span>}
+          {lead.politicians?.length > 0 && <span>Named: {lead.politicians.map((p, i) => <span key={p.slug}>{i > 0 && ", "}<a href={`/politicians/${p.slug}`}>{p.name}</a></span>)}</span>}
+          <a href={lead.url} target="_blank" rel="noreferrer">Read more →</a>
+        </div>
       </div>
 
-      {supporting.length > 0 && (
-        <div style={{ borderTop: "1px solid var(--line)", paddingTop: 20 }}>
-          <div style={{ fontFamily: "var(--sans)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".07em", color: "var(--paper-faint)", marginBottom: 6 }}>
-            Also today
-          </div>
-          {supporting.map((s, i) => (
-            <a key={i} href={s.url} target="_blank" rel="noreferrer" className="row-line" style={{ display: "flex", alignItems: "flex-start", gap: 14, padding: "13px 0" }}>
-              <span style={{ fontFamily: "var(--mono)", fontSize: 11.5, color: "var(--paper-faint)", width: 20, flexShrink: 0, paddingTop: 3 }}>
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: 15, lineHeight: 1.4 }}>{s.headline}</div>
-                {s.summary && (
-                  <div style={{ fontSize: 12.5, color: "var(--paper-dim)", marginTop: 3, lineHeight: 1.45 }}>
-                    {s.summary.length > 160 ? s.summary.slice(0, 160).trim() + "…" : s.summary}
-                  </div>
-                )}
-              </div>
-              {s.outletCount > 1 && (
-                <span style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--paper-faint)", flexShrink: 0, paddingTop: 3 }}>
-                  {s.outletCount}
-                </span>
-              )}
+      <aside className="ed-side" aria-label="Also in today's brief">
+        <div className="kicker" style={{ marginBottom: 4 }}>Also today</div>
+        <div className="rule-list">
+          {developments.map((d, i) => (
+            <a key={d.id} href={d.url} target="_blank" rel="noreferrer" style={{ display: "block", padding: "13px 0" }}>
+              <div className="kicker" style={{ marginBottom: 3 }}>{String(i + 1).padStart(2, "0")} · {kickerText(d)}{d.status ? ` · ${d.status}` : ""}</div>
+              <div style={{ fontWeight: 700, fontSize: 15.5, lineHeight: 1.3 }}>{d.headline}</div>
+              {d.summaryText && <div style={{ fontSize: 13, color: "var(--paper-dim)", marginTop: 4, lineHeight: 1.45 }}>{d.summaryText.length > 150 ? d.summaryText.slice(0, 150).replace(/\s+\S*$/, "") + "…" : d.summaryText}</div>}
             </a>
           ))}
         </div>
-      )}
-
-      {watch && (
-        <div style={{ marginTop: 24, paddingTop: 18, borderTop: "1px solid var(--line)" }}>
-          <div style={{ fontFamily: "var(--sans)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".07em", color: "var(--amber)", marginBottom: 6 }}>
-            What to watch
+        {(watch.length > 0 || aiWatch) && (
+          <div style={{ marginTop: 18, paddingTop: 16, borderTop: "1px solid var(--line)" }}>
+            <div className="kicker" style={{ color: "var(--amber)", marginBottom: 6 }}>What to watch</div>
+            {watch.map((w) => (
+              <p key={w.id} style={{ fontSize: 13.5, lineHeight: 1.5, margin: "0 0 8px", color: "var(--paper-dim)" }}>
+                <strong style={{ color: "var(--paper)" }}>Still {w.status === "BREAKING" ? "breaking" : "developing"}:</strong> {w.headline} <span style={{ color: "var(--paper-faint)" }}>— {w.note}</span>
+              </p>
+            ))}
+            {aiWatch && <p style={{ fontSize: 13.5, lineHeight: 1.5, margin: 0, color: "var(--paper-dim)" }}>{aiWatch}</p>}
           </div>
-          <p style={{ fontSize: 14.5, lineHeight: 1.55, margin: 0, color: "var(--paper-dim)" }}>{watch}</p>
-        </div>
-      )}
+        )}
+        <div className="meta" style={{ marginTop: 14 }}>Brief compiled {formatISTClock(brief.generatedAt)}</div>
+      </aside>
     </div>
   );
 }

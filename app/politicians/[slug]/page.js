@@ -5,10 +5,23 @@ import EvidenceLedgerItem from "@/components/EvidenceLedgerItem";
 import { getPolitician } from "@/lib/data";
 import { notFound } from "next/navigation";
 
-export default async function PoliticianPage({ params }) {
-  const p = await getPolitician(params.slug);
-  if (!p) return notFound();
+export const dynamic = "force-dynamic";
 
+export default async function PoliticianPage({ params }) {
+  const res = await getPolitician(params.slug);
+  if (res.status === "notfound") return notFound();
+  if (res.status === "unavailable") {
+    // A database failure is NOT a 404 — never show a fake "not found" for a
+    // transient error, and never fall back to demo content.
+    return (
+      <>
+        <Nav />
+        <section className="wrap"><div className="empty" role="status">This politician’s record couldn’t be loaded right now.</div></section>
+        <Footer />
+      </>
+    );
+  }
+  const p = res.politician;
   const promiseClaims = (p.claims || []).filter((c) => c.claim_type === "promise");
 
   return (

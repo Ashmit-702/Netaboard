@@ -11,9 +11,25 @@ final authority when a verified publisher has already ruled on this. Respond ONL
 {"verdict":"True|Misleading|Needs Context|False","explanation":"2-3 sentence neutral explanation in
 plain prose, no markdown, no asterisks"}. Do not include markdown fences or any other text.`;
 
+// Best-effort abuse guard (per server instance): the endpoint is anonymous
+// and writes to the ledger, so cap request size and rate.
+const hits = new Map();
+function rateLimited(ip) {
+  const now = Date.now();
+  const recent = (hits.get(ip) || []).filter((t) => now - t < 10 * 60000);
+  recent.push(now);
+  hits.set(ip, recent);
+  return recent.length > 10;
+}
+
 export async function POST(req) {
-  const { text } = await req.json();
+  const ip = (req.headers.get("x-forwarded-for") || "unknown").split(",")[0].trim();
+  if (rateLimited(ip)) return NextResponse.json({ error: "Too many checks — try again in a few minutes." }, { status: 429 });
+  let body;
+  try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid request" }, { status: 400 }); }
+  const text = typeof body?.text === "string" ? body.text.trim() : "";
   if (!text) return NextResponse.json({ error: "Missing text" }, { status: 400 });
+  if (text.length > 800) return NextResponse.json({ error: "Claim is too long — keep it under 800 characters." }, { status: 400 });
 
   const published = await searchPublishedFactChecks(text);
 
@@ -45,7 +61,7 @@ export async function POST(req) {
   const ledgerStatus = verdictMap[parsed.verdict] || "needs_context";
 
   const sb = supabaseServer();
-  if (sb) {
+  if (sb && text.length >= 15) {
     // Existing fact_checks log — unchanged, nothing here regresses.
     await sb.from("fact_checks").insert({
       input_text: text, verdict: parsed.verdict, explanation: parsed.explanation,

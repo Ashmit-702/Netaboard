@@ -2,13 +2,15 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import Gauge from "@/components/Gauge";
 import { adaptElectionForGauge } from "@/lib/data";
-import { getElectionWatch } from "@/lib/electionWatch";
+import { getElections } from "@/lib/elections/get";
+import { selectElectionWatch } from "@/lib/elections/classify";
 import { freshnessLabel } from "@/lib/freshness";
 
 export const metadata = { title: "Election Predictions — NetaBoard" };
 
 export default async function PredictionsPage() {
-  const watch = await getElectionWatch();
+  const { elections } = await getElections();
+  const watch = selectElectionWatch(elections);
   const election = adaptElectionForGauge(watch);
   const fresh = election ? freshnessLabel(election.lastUpdated) : null;
 

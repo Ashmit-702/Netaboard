@@ -6,7 +6,7 @@ import { getPoliticians, getAttention } from "@/lib/data";
 export const metadata = { title: "Politician Tracker — NetaBoard" };
 
 export default async function PoliticiansPage() {
-  const [politicians, stocks] = await Promise.all([getPoliticians(), getAttention()]);
+  const [{ ok, politicians }, attention] = await Promise.all([getPoliticians(), getAttention()]);
 
   return (
     <>
@@ -14,7 +14,7 @@ export default async function PoliticiansPage() {
       <section className="wrap">
         <div className="eyebrow">Trending Netas</div>
         <h2 className="title" style={{ fontSize: 22, marginBottom: 6 }}>Who's attracting unusual attention.</h2>
-        <TrendingNetas stocks={stocks} />
+        <TrendingNetas rows={attention} showNote={false} />
       </section>
 
       <section className="wrap tight" style={{ borderTop: "1px solid var(--line)" }}>
@@ -25,8 +25,10 @@ export default async function PoliticiansPage() {
           The score is computed from that evidence, not assigned by hand.
         </p>
 
+        {!ok && <div className="empty" role="status">Politician records couldn’t be loaded right now.</div>}
+        {ok && politicians.length === 0 && <div className="empty">No politicians recorded yet.</div>}
         <div className="grid-3">
-          {politicians.map((p) => {
+          {ok && politicians.map((p) => {
             const a = p.accountability;
             return (
               <a key={p.slug} href={`/politicians/${p.slug}`} className="card" style={{ display: "block" }}>

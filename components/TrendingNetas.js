@@ -1,49 +1,43 @@
-// Shows 3-5 politicians with the strongest real attention movement — never
-// more, and never fabricated. Sourced from lib/data.js's getAttention(), which
-// itself is built from real signals (Wikipedia pageviews, GDELT, Hacker
-// News, Mastodon — see lib/social.js). Explicitly NOT a popularity ranking.
-export default function TrendingNetas({ stocks, compact = false }) {
-  const trending = [...stocks]
-    .filter((s) => typeof s.change_pct === "number" && s.change_pct !== 0)
-    .sort((a, b) => Math.abs(b.change_pct) - Math.abs(a.change_pct))
-    .slice(0, compact ? 5 : 8);
+// TRENDING NETAS — politicians with UNUSUAL recent attention: a fresh reading
+// (last 3 days) whose movement versus their previous reading is at least 1%.
+// Trending is not popularity and not approval. Every row links to a
+// politician who exists in the database (the rows are joined from it), so a
+// card can never lead to a 404.
+import RelTime from "./RelTime";
+import { trendingNetas } from "@/lib/attention";
 
+export default function TrendingNetas({ rows, max = 5, showNote = true }) {
+  const trending = trendingNetas(rows || [], { max });
   if (!trending.length) {
-    return <div style={{ color: "var(--paper-faint)", fontSize: 13.5, padding: "16px 0" }}>No significant trending movement right now.</div>;
+    return <div className="empty">No politician is showing unusual attention right now.</div>;
   }
-
   return (
     <div>
-      <div style={{ fontSize: 11.5, color: "var(--paper-faint)", marginBottom: 14, fontFamily: "var(--sans)" }}>
-        TRENDING ≠ MOST POPULAR — this measures attention volume (mentions, pageviews), not approval.
-        A controversy moves this the same direction as a good speech.
+      {showNote && (
+        <p className="sec-sub" style={{ marginTop: 0 }}>
+          Trending is not popularity and not approval. It marks unusual recent attention — a controversy moves it the same way a good speech does.
+        </p>
+      )}
+      <div className="rule-list">
+        {trending.map((r, i) => {
+          const up = r.change_pct > 0;
+          return (
+            <a key={r.slug} href={`/politicians/${r.slug}`} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0" }}>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 11.5, color: "var(--paper-faint)", width: 22, flexShrink: 0 }}>{String(i + 1).padStart(2, "0")}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: "var(--display)", fontWeight: 800, fontSize: 18, lineHeight: 1.2 }}>{r.name}</div>
+                <div className="meta" style={{ marginTop: 2 }}>{[r.role, r.party].filter(Boolean).join(" · ")}</div>
+              </div>
+              <div style={{ textAlign: "right", flexShrink: 0 }}>
+                <div style={{ fontFamily: "var(--mono)", fontWeight: 700, fontSize: 14, color: up ? "var(--mint)" : "var(--red)" }}>
+                  {up ? "▲ attention rising" : "▼ attention falling"} {Math.abs(r.change_pct)}%
+                </div>
+                <div className="meta" style={{ justifyContent: "flex-end" }}>updated <RelTime iso={r.recorded_at} /></div>
+              </div>
+            </a>
+          );
+        })}
       </div>
-      {trending.map((s, i) => {
-        const up = s.change_pct > 0;
-        const content = (
-          <>
-            <span style={{ fontFamily: "var(--mono)", fontSize: 12, color: "var(--paper-faint)", width: 22, flexShrink: 0 }}>
-              {String(i + 1).padStart(2, "0")}
-            </span>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 700, fontSize: 14.5 }}>{s.name}</div>
-              {s.role && <div style={{ fontSize: 11.5, color: "var(--paper-faint)", marginTop: 1 }}>{s.role}</div>}
-            </div>
-            <span style={{ fontFamily: "var(--mono)", fontSize: 14, fontWeight: 700, color: up ? "var(--mint)" : "var(--red)", flexShrink: 0 }}>
-              {up ? "▲" : "▼"} {Math.abs(s.change_pct)}%
-            </span>
-          </>
-        );
-        return s.slug ? (
-          <a key={s.name} href={`/politicians/${s.slug}`} className="row-line" style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 0" }}>
-            {content}
-          </a>
-        ) : (
-          <div key={s.name} className="row-line" style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 0" }}>
-            {content}
-          </div>
-        );
-      })}
     </div>
   );
 }
