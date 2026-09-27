@@ -1,68 +1,78 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import TrendingNetas from "@/components/TrendingNetas";
+import RelTime from "@/components/RelTime";
 import { getPoliticians, getAttention } from "@/lib/data";
 
-export const metadata = { title: "Politician Tracker — NetaBoard" };
+export const metadata = { title: "Politicians — NetaBoard" };
+export const dynamic = "force-dynamic";
 
 export default async function PoliticiansPage() {
   const [{ ok, politicians }, attention] = await Promise.all([getPoliticians(), getAttention()]);
+  // getAttention() already returns one (latest) row per politician.
+  const attentionBySlug = new Map(attention.map((r) => [r.slug, r]));
 
   return (
     <>
       <Nav />
       <section className="wrap">
         <div className="eyebrow">Trending Netas</div>
-        <h2 className="title" style={{ fontSize: 22, marginBottom: 6 }}>Who's attracting unusual attention.</h2>
-        <TrendingNetas rows={attention} showNote={false} />
+        <h1 className="lead-h" style={{ fontSize: "clamp(28px,4.4vw,44px)" }}>Who’s attracting unusual attention.</h1>
+        <TrendingNetas rows={attention} />
       </section>
 
       <section className="wrap tight" style={{ borderTop: "1px solid var(--line)" }}>
-        <div className="eyebrow">Evidence Ledger &amp; Accountability Score</div>
-        <h2 className="title">What was said. What the evidence shows.</h2>
-        <p className="sub">
-          Every promise here traces to a claim, its evidence, and a verdict — not a bare checkmark.
-          The score is computed from that evidence, not assigned by hand.
+        <div className="sec-head">
+          <h2>All Politicians</h2>
+        </div>
+        <p className="sec-sub">
+          Attention movement, accountability, and evidence coverage — always shown together, never a bare score.
         </p>
 
         {!ok && <div className="empty" role="status">Politician records couldn’t be loaded right now.</div>}
         {ok && politicians.length === 0 && <div className="empty">No politicians recorded yet.</div>}
-        <div className="grid-3">
-          {ok && politicians.map((p) => {
-            const a = p.accountability;
-            return (
-              <a key={p.slug} href={`/politicians/${p.slug}`} className="card" style={{ display: "block" }}>
-                <div style={{ fontWeight: 800, fontSize: 15.5, marginBottom: 2 }}>{p.name}</div>
-                <div style={{ fontSize: 11.5, color: "var(--paper-faint)", fontFamily: "var(--mono)", marginBottom: 16 }}>
-                  {p.role} · {p.party?.abbreviation}
-                </div>
 
-                <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 12 }}>
-                  <span style={{ fontFamily: "var(--mono)", fontSize: 28, fontWeight: 700 }}>
-                    {a.score === null ? "—" : a.score}
-                  </span>
-                  <span style={{ fontSize: 11.5, color: "var(--paper-faint)", textTransform: "uppercase" }}>
-                    accountability{a.score !== null ? " / 100" : ""}
-                  </span>
-                </div>
-
-                <div style={{ display: "flex", gap: 14, fontSize: 11.5, fontFamily: "var(--mono)" }}>
-                  <span style={{ color: "var(--mint)" }}>{a.fulfilled} fulfilled</span>
-                  <span style={{ color: "var(--amber)" }}>{a.partial} partial</span>
-                  <span style={{ color: "var(--red)" }}>{a.notFulfilled} not fulfilled</span>
-                </div>
-                <div style={{ fontSize: 11, color: "var(--amber)", marginTop: 6 }}>
-                  {a.evidenceCoverage}% evidence coverage
-                </div>
-                {a.disputed > 0 && (
-                  <div style={{ fontSize: 11, color: "var(--paper-faint)", marginTop: 6 }}>
-                    +{a.disputed} awaiting evidence
+        {ok && politicians.length > 0 && (
+          <div className="rule-list">
+            {politicians.map((p) => {
+              const a = p.accountability;
+              const att = attentionBySlug.get(p.slug);
+              const up = att && att.change_pct > 0;
+              const flat = att && Math.abs(att.change_pct) < 0.05;
+              return (
+                <a
+                  key={p.slug} href={`/politicians/${p.slug}`}
+                  style={{ display: "flex", alignItems: "center", gap: 18, padding: "16px 0", flexWrap: "wrap" }}
+                >
+                  <div style={{ flex: "2 1 220px", minWidth: 0 }}>
+                    <div style={{ fontFamily: "var(--display)", fontWeight: 800, fontSize: 17.5, lineHeight: 1.25 }}>{p.name}</div>
+                    <div className="meta" style={{ marginTop: 2 }}>{[p.role, p.party?.abbreviation].filter(Boolean).join(" · ")}</div>
                   </div>
-                )}
-              </a>
-            );
-          })}
-        </div>
+
+                  <div style={{ flex: "1 1 130px", fontFamily: "var(--mono)", fontSize: 13 }}>
+                    {att ? (
+                      <span style={{ color: flat ? "var(--paper-faint)" : up ? "var(--mint)" : "var(--red)", fontWeight: 700 }}>
+                        {flat ? "● steady" : up ? "▲" : "▼"} {flat ? "" : `${Math.abs(att.change_pct)}%`}
+                      </span>
+                    ) : (
+                      <span style={{ color: "var(--paper-faint)" }}>No recent reading</span>
+                    )}
+                    {att && <div className="meta" style={{ marginTop: 2 }}><RelTime iso={att.recorded_at} /></div>}
+                  </div>
+
+                  <div style={{ flex: "1 1 150px", fontFamily: "var(--mono)", fontSize: 13 }}>
+                    {a.accountabilityScore === null ? (
+                      <span style={{ color: "var(--paper-faint)" }}>Not enough evidence</span>
+                    ) : (
+                      <span><strong style={{ fontSize: 15 }}>{a.accountabilityScore}</strong>/100 accountability</span>
+                    )}
+                    <div className="meta" style={{ marginTop: 2 }}>{a.evidenceCoverage}% evidence coverage</div>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        )}
       </section>
       <Footer />
     </>

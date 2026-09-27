@@ -28,6 +28,16 @@ export default function IssueWatch({ issues, status, full = false }) {
               {issue.whatHappened.firstReportedAt && <div className="meta" style={{ marginTop: 4 }}>First reported {formatISTDateTime(issue.whatHappened.firstReportedAt)}</div>}
             </dd>
 
+            {issue.context && (
+              <>
+                <dt>Context</dt>
+                <dd>
+                  {issue.context.established.map((line, i) => <div key={`e${i}`} style={{ marginBottom: 4 }}>{line}</div>)}
+                  {issue.context.unresolved.map((line, i) => <div key={`u${i}`} style={{ marginBottom: 4, color: "var(--paper-dim)" }}>{line}</div>)}
+                </dd>
+              </>
+            )}
+
             <dt>What changed</dt>
             <dd>
               {issue.whatChanged.length ? issue.whatChanged.map((c) => (

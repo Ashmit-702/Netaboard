@@ -1,18 +1,34 @@
 -- ============================================================
 -- NETABOARD — Supabase schema
--- Run this in Supabase Dashboard → SQL Editor (or `supabase db push`)
+-- Run this in Supabase Dashboard → SQL Editor (or `supabase db push`),
+-- THEN run every file in supabase/migrations/ in numeric order (001-011).
+--
+-- This file alone does NOT reflect the current application architecture —
+-- the evidence ledger (claims/evidence/verdicts), election freshness fields
+-- (data_status, is_demo, is_archived, ...), and constituency archival flags
+-- are all added by migrations, not here, because they were introduced
+-- after this file was first written and migrations are additive-only.
+-- Tables below marked DEPRECATED/HISTORICAL are still created (for existing
+-- foreign keys and migration safety) but are NOT read by any current
+-- application code — see the note on each.
 -- ============================================================
 
 create extension if not exists "uuid-ossp";
 
 -- ---------- PARTIES ----------
+-- NOTE: `region` and `seats_current` are DEPRECATED/HISTORICAL — the app now
+-- reads seat counts from `party_election_results`, joined to a specific
+-- `elections` row, so seats from different elections are never mixed (see
+-- lib/data.js:getParties). These two columns are kept only because
+-- supabase/demo/seed.sql (local/demo only) still populates them for the
+-- Coalition Builder's demo mode; production data does not need them.
 create table if not exists parties (
   id uuid primary key default uuid_generate_v4(),
   name text not null,
   abbreviation text not null,
   color text default '#7b84a3',
-  region text not null default 'bihar_2020',   -- which assembly/election this seat count belongs to
-  seats_current int not null default 0,
+  region text not null default 'unspecified',        -- DEPRECATED/HISTORICAL, see note above
+  seats_current int not null default 0,               -- DEPRECATED/HISTORICAL, see note above
   created_at timestamptz default now()
 );
 
@@ -86,7 +102,14 @@ create table if not exists predictors (
   updated_at timestamptz default now()
 );
 
--- ---------- CONSTITUENCY DASHBOARD ----------
+-- ---------- CONSTITUENCY DASHBOARD — DEPRECATED / HISTORICAL ----------
+-- The Constituency feature was removed from the active product (/constituencies
+-- and /heatmap now redirect to /elections and /explore). This table, and
+-- constituency_snapshots/constituency_election_results added in migrations
+-- 004/007/011, are kept only so the two existing historical rows (Patna
+-- Sahib, Raghopur — both marked is_archived) remain queryable for
+-- migration safety. No current application code reads or writes these
+-- tables. Do not build new features on them.
 create table if not exists constituencies (
   id uuid primary key default uuid_generate_v4(),
   name text not null,
@@ -101,7 +124,12 @@ create table if not exists constituencies (
   created_at timestamptz default now()
 );
 
--- ---------- POLITICAL STOCK MARKET ----------
+-- ---------- POLITICAL ATTENTION ----------
+-- NOT deprecated — this is the live table behind /attention. Only the
+-- PRODUCT LANGUAGE changed (Political Attention, not "Political Stock
+-- Market" — see lib/attention.js and app/attention/page.js); renaming the
+-- table itself was judged unnecessary migration risk for a purely cosmetic
+-- change, so `stock_prices`/`price` remain the column names.
 create table if not exists stock_prices (
   id uuid primary key default uuid_generate_v4(),
   politician_id uuid references politicians(id) on delete cascade,
@@ -111,7 +139,11 @@ create table if not exists stock_prices (
   recorded_at timestamptz default now()
 );
 
--- ---------- GEOPOLITICAL RISK METER ----------
+-- ---------- GEOPOLITICAL RISK METER — DEPRECATED / UNUSED ----------
+-- Never part of the active product's navigation, UI, or data layer. Table
+-- kept, empty, rather than dropped, since dropping a live table is a
+-- decision this project leaves to a manual, explicit migration. No
+-- application code references this table.
 create table if not exists geopolitical_risk (
   id uuid primary key default uuid_generate_v4(),
   country text not null,

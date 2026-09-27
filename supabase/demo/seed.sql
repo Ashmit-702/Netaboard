@@ -11,6 +11,17 @@
 -- DO NOT run this against a production database with real politicians,
 -- promises, evidence, or elections in it — the DELETE statements below
 -- will destroy that data irreversibly.
+--
+-- This is a FROZEN example snapshot, not a current roster. Party seats
+-- reflect the 2020 Bihar Legislative Assembly result specifically (tagged
+-- 'demo-2020' below) purely because that is the shape the Coalition Builder
+-- demo needs — one election's seats, none fabricated. It is not meant to
+-- represent current politics: e.g. Nitish Kumar's bio below is written in
+-- the past tense on purpose, because he left the Bihar CM post in April
+-- 2026 (Bihar re-elected the NDA in Nov 2025; the BJP's Samrat Choudhary
+-- became CM 15 April 2026 — https://en.wikipedia.org/wiki/18th_Bihar_Assembly).
+-- For a real, current, sourced roster, see docs/AUDIT_v3.md ->
+-- "SUPABASE CHANGES REQUIRED" rather than editing this file.
 -- ============================================================
 
 delete from promises;
@@ -38,7 +49,7 @@ insert into parties (name, abbreviation, color, region, seats_current) values
 -- ---------- POLITICIANS ----------
 insert into politicians (slug, name, role, party_id, bio) values
 ('narendra-modi', 'Narendra Modi', 'Prime Minister of India', (select id from parties where abbreviation='BJP'), 'Prime Minister since 2014, MP from Varanasi.'),
-('nitish-kumar', 'Nitish Kumar', 'Chief Minister, Bihar', (select id from parties where abbreviation='JD(U)'), 'Chief Minister of Bihar across multiple terms since 2005.'),
+('nitish-kumar', 'Nitish Kumar', 'JD(U) President (former Chief Minister, Bihar)', (select id from parties where abbreviation='JD(U)'), 'Was Chief Minister of Bihar across multiple terms, 2005 to 14 April 2026; see the demo-note above this block.'),
 ('tejashwi-yadav', 'Tejashwi Yadav', 'Leader of Opposition, Bihar', (select id from parties where abbreviation='RJD'), 'RJD leader and former Deputy Chief Minister of Bihar.'),
 ('rahul-gandhi', 'Rahul Gandhi', 'Leader of Opposition, Lok Sabha', (select id from parties where abbreviation='Congress'), 'Congress MP and party leader.');
 

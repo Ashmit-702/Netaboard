@@ -145,6 +145,19 @@ test("politician entity matching: literal full name only, >=2 articles or in lea
   assert.deepEqual(exp.politicians, []);
 });
 
+test("Issue Watch Context is structural only — no invented cause, motive, or political conclusion", () => {
+  const items = feedOf(F.upiArticles, F.distractors, F.sportsArticles);
+  const issues = issueWatch(items);
+  const upi = issues.find((i) => /UPI/i.test(i.headline));
+  assert.ok(upi.context, "context object exists");
+  assert.ok(upi.context.established.length >= 1);
+  assert.match(upi.context.established[0], /outlet/i);
+  assert.ok(upi.context.established.some((l) => /hour/i.test(l)));
+  // Never invents "why" or "who is responsible" language.
+  const allText = [...upi.context.established, ...upi.context.unresolved].join(" ");
+  assert.doesNotMatch(allText, /because|caused by|responsible|blame|likely due to/i);
+});
+
 test("Trending Now = rising topics (recent multi-outlet momentum), distinct from importance", () => {
   const items = feedOf(F.upiArticles, F.sportsArticles, F.continuing);
   const t = trendingNow(items);
