@@ -1,80 +1,144 @@
 import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
+import MinimalFooter from "@/components/MinimalFooter";
+import EditorialRow from "@/components/EditorialRow";
+import SectionHead from "@/components/SectionHead";
+import TodaysBrief from "@/components/TodaysBrief";
+import StoryRow from "@/components/StoryRow";
+import TrendingNow from "@/components/TrendingNow";
+import IssueWatch from "@/components/IssueWatch";
 import TrendingNetas from "@/components/TrendingNetas";
-import RelTime from "@/components/RelTime";
+import ChangeRow from "@/components/ChangeRow";
+import FeaturedClaim from "@/components/FeaturedClaim";
+import ElectionWatchCard from "@/components/ElectionWatchCard";
+import HomeSearchBox from "@/components/HomeSearchBox";
+import TodayTabs from "@/components/TodayTabs";
 import { getPoliticians, getAttention } from "@/lib/data";
+import { getAllChanges } from "@/lib/changes";
+import { getCurrentAffairs } from "@/lib/current-affairs/get";
+import { getBrief } from "@/lib/brief/get";
+import { getElections } from "@/lib/elections/get";
+import { selectElectionWatch } from "@/lib/elections/classify";
+import { getRecentClaims, pickFeaturedClaim } from "@/lib/evidenceFeed";
+import { formatISTDate, formatISTClock } from "@/lib/time";
 
-export const metadata = { title: "Politicians — NetaBoard" };
+// Time-sensitive: rendered per request. News ingestion is cached separately
+// (lib/current-affairs/get.js), so this does not multiply API calls.
 export const dynamic = "force-dynamic";
 
-export default async function PoliticiansPage() {
-  const [{ ok, politicians }, attention] = await Promise.all([getPoliticians(), getAttention()]);
-  // getAttention() already returns one (latest) row per politician.
-  const attentionBySlug = new Map(attention.map((r) => [r.slug, r]));
+export default async function Home() {
+  const { politicians } = await getPoliticians();
+  const roster = politicians.map((p) => ({ name: p.name, slug: p.slug }));
 
+  const [feed, { changes, byType }, attention, electionsRes, claimsRes] = await Promise.all([
+    getCurrentAffairs({ roster }), getAllChanges(), getAttention(), getElections(), getRecentClaims(),
+  ]);
+
+  const brief = await getBrief(feed.items);
+  const covered = new Set(brief?.coveredIds || []);
+  const moreStories = feed.items.filter((it) => !covered.has(it.id)).slice(0, 10);
+  const issueIds = new Set(feed.issues.map((i) => i.id));
+
+  const featured = pickFeaturedClaim(claimsRes.claims);
+  const electionWatch = selectElectionWatch(electionsRes.elections);
+
+  const recordChanges = [...(byType.promise_status || []), ...(byType.new_evidence || [])];
+  const changedPoliticians = politicians
+    .map((p) => ({ p, latest: recordChanges.find((c) => c.entity === p.name) }))
+    .filter((x) => x.latest).slice(0, 5);
+  const otherChanges = changes.filter((c) => !["attention"].includes(c.type)).slice(0, 5);
+
+  const nowIso = new Date().toISOString();
   return (
     <>
       <Nav />
-      <section className="wrap">
-        <div className="eyebrow">Trending Netas</div>
-        <h1 className="lead-h" style={{ fontSize: "clamp(28px,4.4vw,44px)" }}>Who’s attracting unusual attention.</h1>
-        <TrendingNetas rows={attention} />
+
+      <section className="wrap" style={{ paddingTop: 34, paddingBottom: 40 }}>
+        <div className="masthead">
+          <span className="tagline">NetaBoard — Politics, with receipts.</span>
+          <span className="stamp">{formatISTDate(nowIso, { weekday: "long", day: "numeric", month: "long", year: "numeric" })} · {formatISTClock(nowIso)}</span>
+        </div>
+        <TodayTabs current="/" />
+        <div className="eyebrow">Today&apos;s Brief</div>
+        <TodaysBrief brief={brief} status={feed.status} />
       </section>
 
       <section className="wrap tight" style={{ borderTop: "1px solid var(--line)" }}>
-        <div className="sec-head">
-          <h2>All Politicians</h2>
-        </div>
-        <p className="sec-sub">
-          Attention movement, accountability, and evidence coverage — always shown together, never a bare score.
-        </p>
-
-        {!ok && <div className="empty" role="status">Politician records couldn’t be loaded right now.</div>}
-        {ok && politicians.length === 0 && <div className="empty">No politicians recorded yet.</div>}
-
-        {ok && politicians.length > 0 && (
-          <div className="rule-list">
-            {politicians.map((p) => {
-              const a = p.accountability;
-              const att = attentionBySlug.get(p.slug);
-              const up = att && att.change_pct > 0;
-              const flat = att && Math.abs(att.change_pct) < 0.05;
-              return (
-                <a
-                  key={p.slug} href={`/politicians/${p.slug}`}
-                  style={{ display: "flex", alignItems: "center", gap: 18, padding: "16px 0", flexWrap: "wrap" }}
-                >
-                  <div style={{ flex: "2 1 220px", minWidth: 0 }}>
-                    <div style={{ fontFamily: "var(--display)", fontWeight: 800, fontSize: 17.5, lineHeight: 1.25 }}>{p.name}</div>
-                    <div className="meta" style={{ marginTop: 2 }}>{[p.role, p.party?.abbreviation].filter(Boolean).join(" · ")}</div>
-                  </div>
-
-                  <div style={{ flex: "1 1 130px", fontFamily: "var(--mono)", fontSize: 13 }}>
-                    {att ? (
-                      <span style={{ color: flat ? "var(--paper-faint)" : up ? "var(--mint)" : "var(--red)", fontWeight: 700 }}>
-                        {flat ? "● steady" : up ? "▲" : "▼"} {flat ? "" : `${Math.abs(att.change_pct)}%`}
-                      </span>
-                    ) : (
-                      <span style={{ color: "var(--paper-faint)" }}>No recent reading</span>
-                    )}
-                    {att && <div className="meta" style={{ marginTop: 2 }}><RelTime iso={att.recorded_at} /></div>}
-                  </div>
-
-                  <div style={{ flex: "1 1 150px", fontFamily: "var(--mono)", fontSize: 13 }}>
-                    {a.accountabilityScore === null ? (
-                      <span style={{ color: "var(--paper-faint)" }}>Not enough evidence</span>
-                    ) : (
-                      <span><strong style={{ fontSize: 15 }}>{a.accountabilityScore}</strong>/100 accountability</span>
-                    )}
-                    <div className="meta" style={{ marginTop: 2 }}>{a.evidenceCoverage}% evidence coverage</div>
-                  </div>
-                </a>
-              );
-            })}
+        <SectionHead eyebrow="Current Affairs" title="What’s happening now." href="/current-affairs" linkLabel="All current affairs" />
+        {feed.status === "failed" ? (
+          <div className="empty">Current affairs couldn’t be refreshed right now.</div>
+        ) : moreStories.length ? (
+          <div className="cols-2">
+            {[moreStories.filter((_, i) => i % 2 === 0), moreStories.filter((_, i) => i % 2 === 1)].map((col, c) => (
+              <div key={c}>{col.map((it) => <StoryRow key={it.id} item={it} issueHref={issueIds.has(it.id) ? `/issue-watch#${it.id}` : undefined} />)}</div>
+            ))}
           </div>
+        ) : (
+          <div className="empty">{feed.status === "empty" ? "No major current-affairs updates right now." : "Nothing further beyond today’s brief."}</div>
         )}
       </section>
-      <Footer />
+
+      <section className="wrap tight" style={{ borderTop: "1px solid var(--line)" }}>
+        <SectionHead eyebrow="Trending Now" title="Rising fastest." sub="Topics whose coverage is accelerating right now — not the same as the most important stories." />
+        <TrendingNow topics={feed.trending} status={feed.status} />
+      </section>
+
+      <section className="wrap tight" style={{ borderTop: "1px solid var(--line)" }}>
+        <SectionHead eyebrow="Issue Watch" title="One issue, in depth." href="/issue-watch" linkLabel="Full timelines" />
+        <IssueWatch issues={feed.issues} status={feed.status} />
+      </section>
+
+      <section className="wrap tight" style={{ borderTop: "1px solid var(--line)" }}>
+        <SectionHead eyebrow="Trending Netas" title="Who’s drawing unusual attention." href="/attention" linkLabel="Political Attention" />
+        <TrendingNetas rows={attention} />
+      </section>
+
+      {otherChanges.length > 0 && (
+        <section className="wrap tight" style={{ borderTop: "1px solid var(--line)" }}>
+          <SectionHead eyebrow="What Changed" title="Recent changes to the record." sub="Only genuine changes in the last two weeks." />
+          <div className="rule-list">{otherChanges.map((c, i) => <ChangeRow key={i} change={c} />)}</div>
+        </section>
+      )}
+
+      {featured && (
+        <section className="wrap tight" style={{ borderTop: "1px solid var(--line)" }}>
+          <SectionHead eyebrow="The Evidence" title="One claim, checked." />
+          <FeaturedClaim claim={featured} />
+        </section>
+      )}
+
+      {electionWatch && (
+        <section className="wrap tight" style={{ borderTop: "1px solid var(--line)" }}>
+          <SectionHead eyebrow="Election Watch" title="Which election matters now." href="/elections" linkLabel="All elections" />
+          <ElectionWatchCard election={electionWatch} />
+        </section>
+      )}
+
+      {changedPoliticians.length > 0 && (
+        <section className="wrap tight" style={{ borderTop: "1px solid var(--line)" }}>
+          <SectionHead eyebrow="Accountability" title="Whose record just changed." sub="Score and evidence coverage always appear together." />
+          <div className="rule-list">
+            {changedPoliticians.map(({ p, latest }) => (
+              <EditorialRow
+                key={p.slug} eyebrow={p.name} href={`/politicians/${p.slug}`}
+                title={p.accountability.accountabilityScore === null ? "Not enough evidence to score yet" : `${p.accountability.accountabilityScore}/100 accountability · ${p.accountability.evidenceCoverage}% evidence coverage`}
+                meta={latest.reason || latest.title}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="wrap tight" style={{ borderTop: "1px solid var(--line)" }}>
+        <SectionHead eyebrow="Ask NetaBoard" title="“Did this actually happen?”" />
+        <HomeSearchBox />
+        <div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginTop: 16, fontSize: 12.5, color: "var(--paper-faint)" }}>
+          {["Did this promise get fulfilled?", "What changed recently?", "Is this viral claim true?"].map((ex) => (
+            <a key={ex} href={`/ask?q=${encodeURIComponent(ex)}`} style={{ textDecoration: "underline" }}>{ex}</a>
+          ))}
+        </div>
+      </section>
+
+      <MinimalFooter />
     </>
   );
 }
