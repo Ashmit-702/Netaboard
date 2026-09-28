@@ -14,6 +14,8 @@ const fallbackDebate = {
   ],
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function DebatePage() {
   const debate = (await getDebate()) || fallbackDebate;
 

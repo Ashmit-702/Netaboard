@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { normalizeAll } from "../../lib/news/normalize.js";
 import { clusterArticles } from "../../lib/news/cluster.js";
 import { buildFeed, searchItems, sortItems } from "../../lib/current-affairs/feed.js";
-import { matchesFilter, FILTERS } from "../../lib/current-affairs/categorize.js";
+import { matchesFilter, FILTERS, applyView } from "../../lib/current-affairs/search.js";
 import { trendingNow } from "../../lib/issues/trending.js";
 import { issueWatch } from "../../lib/issues/issue-watch.js";
 import { generateBrief } from "../../lib/brief/generate.js";
@@ -54,9 +54,9 @@ test("negative controls: a shared politician name or different regulators do NOT
 
 test("publisher spam cannot dominate: 1 outlet x many articles ranks below 3 independent outlets", () => {
   const spam = ["a", "b", "c", "d", "e", "f"].map((k, i) => F.raw(`Zoning board approves quarry expansion near village ${k}`, `https://www.example-local.in/q/${k}`, 20 + i));
-  const items = feedOf(spam, F.sportsArticles);
+  const items = feedOf(spam, F.courtArticles);
   const q = find(items, /quarry/i);
-  const s = find(items, /cricket/i);
+  const s = find(items, /Supreme Court/i);
   assert.equal(q.outletCount, 1);
   assert.equal(s.outletCount, 3);
   assert.ok(s.score > q.score);
@@ -181,7 +181,7 @@ test("Issue Watch is derived from a real cluster: timeline in time order, what-c
 });
 
 test("end-to-end without hardcoding: the same story reaches Current Affairs -> Trending -> Brief -> Issue Watch; a different story does too on another day", () => {
-  for (const [articles, re] of [[F.upiArticles, /UPI/], [F.sportsArticles, /cricket/i]]) {
+  for (const [articles, re] of [[F.upiArticles, /UPI/], [F.courtArticles, /Supreme Court/i]]) {
     const items = feedOf(articles, F.worldArticles);
     const lead = items[0];
     assert.match(lead.headline + lead.articles.map((a) => a.title).join(" "), re);
@@ -225,4 +225,60 @@ test("time helpers: relative labels and consistent IST formatting", () => {
   assert.equal(relativeLabel(at(120), F.NOW), "2 hours ago");
   assert.equal(relativeLabel(at(60 * 30), F.NOW), "Yesterday");
   assert.equal(formatISTDateTime("2026-09-24T10:00:00Z"), "24 Sept, 3:30 pm IST");
+});
+
+// ------------------------- relevance layer -------------------------------
+test("relevance: a celebrity story with 8 outlets does NOT lead the Brief over a political story with 3", () => {
+  const items = feedOf(F.celebrityArticles, F.courtArticles);
+  const brief = generateBrief(items, { now: F.NOW });
+  assert.match(brief.lead.headline, /Supreme Court|SC reserves/i);
+  const ent = find(items, /Bollywood/);
+  assert.equal(ent.topic, "Entertainment");
+  assert.equal(ent.tier, 3);
+  assert.ok(!brief.developments.some((d) => d.id === ent.id), "entertainment is not even a development");
+});
+
+test("relevance: big sports story is tier 3, excluded from Brief, Trending Now and Issue Watch", () => {
+  const items = feedOf(F.bigSports, F.upiArticles);
+  const sports = find(items, /cricket/i);
+  assert.equal(sports.tier, 3);
+  assert.equal(generateBrief(items, { now: F.NOW }).lead.id, find(items, /UPI/).id);
+  assert.ok(!trendingNow(items).some((t) => t.id === sports.id));
+  assert.ok(!issueWatch(items).some((i) => i.id === sports.id));
+});
+
+test("relevance: with ONLY sports/entertainment the Brief is honestly empty (null), not filled with them", () => {
+  const items = feedOf(F.bigSports, F.celebrityArticles);
+  assert.ok(items.length >= 2);
+  assert.equal(generateBrief(items, { now: F.NOW }), null);
+});
+
+test("relevance: a sports story that is really a government/parliament matter is promoted (exceptional), not blacklisted", () => {
+  const items = feedOf(F.sportsPolicy);
+  const it = items[0];
+  assert.equal(it.exceptional, true);
+  assert.equal(it.tier, 2);
+  assert.ok(generateBrief(items, { now: F.NOW }));
+});
+
+test("relevance: default feed view = important only; Sports/Entertainment filters and explicit search still reach tier 3", () => {
+  const items = feedOf(F.bigSports, F.celebrityArticles, F.courtArticles, F.upiArticles);
+  const all = applyView(items, { filter: "All" });
+  assert.ok(all.length >= 2 && all.every((i) => i.tier <= 2));
+  assert.ok(applyView(items, { filter: "Sports" }).every((i) => i.topic === "Sports") && applyView(items, { filter: "Sports" }).length === 1);
+  assert.equal(applyView(items, { filter: "Entertainment" }).length, 1);
+  assert.ok(applyView(items, { filter: "All", query: "cricket" }).length === 1, "typing a query searches every tier");
+  assert.ok(!applyView(items, { filter: "Politics" }).some((i) => i.tier > 2));
+});
+
+test("relevance: important stories outrank low-value ones in 'Most important' ordering", () => {
+  const items = sortItems(feedOf(F.bigSports, F.celebrityArticles, F.courtArticles), "important");
+  assert.ok(items[0].tier === 1);
+  assert.ok(items.findIndex((i) => i.tier === 1) < items.findIndex((i) => i.tier === 3));
+});
+
+test("issue watch exposes the latest development (newest headline) without interpretation", () => {
+  const upi = issueWatch(feedOf(F.upiArticles, F.courtArticles)).find((i) => /UPI/i.test(i.headline));
+  assert.ok(upi.latestDevelopment);
+  assert.equal(upi.latestDevelopment.at, upi.timeline[upi.timeline.length - 1].at);
 });

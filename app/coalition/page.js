@@ -6,6 +6,8 @@ import { freshnessLabel } from "@/lib/freshness";
 
 export const metadata = { title: "Coalition Builder — NetaBoard" };
 
+export const dynamic = "force-dynamic";
+
 export default async function CoalitionPage() {
   const { parties, electionMeta } = await getParties();
   const total = parties.reduce((s, p) => s + p.seats_current, 0);

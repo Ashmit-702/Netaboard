@@ -8,7 +8,7 @@ export const metadata = { title: "Politicians — NetaBoard" };
 export const dynamic = "force-dynamic";
 
 export default async function PoliticiansPage() {
-  const [{ ok, politicians }, attention] = await Promise.all([getPoliticians(), getAttention()]);
+  const [{ ok, degraded, politicians }, attention] = await Promise.all([getPoliticians(), getAttention()]);
   // getAttention() already returns one (latest) row per politician.
   const attentionBySlug = new Map(attention.map((r) => [r.slug, r]));
 
@@ -30,6 +30,7 @@ export default async function PoliticiansPage() {
         </p>
 
         {!ok && <div className="empty" role="status">Politician records couldn’t be loaded right now.</div>}
+        {ok && degraded && <div className="empty" role="status">Accountability scores are unavailable right now; the roster below is complete but unscored.</div>}
         {ok && politicians.length === 0 && <div className="empty">No politicians recorded yet.</div>}
 
         {ok && politicians.length > 0 && (

@@ -38,6 +38,14 @@ export default function IssueWatch({ issues, status, full = false }) {
               </>
             )}
 
+            {issue.latestDevelopment && (<>
+              <dt>Latest development</dt>
+              <dd>
+                <a href={issue.latestDevelopment.url} target="_blank" rel="noreferrer" style={{ fontWeight: 600 }}>{issue.latestDevelopment.headline}</a>
+                <div className="meta">{formatISTDateTime(issue.latestDevelopment.at)} · {issue.latestDevelopment.outletName}</div>
+              </dd>
+            </>)}
+
             <dt>What changed</dt>
             <dd>
               {issue.whatChanged.length ? issue.whatChanged.map((c) => (

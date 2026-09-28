@@ -10,7 +10,7 @@ export default function TodaysBrief({ brief, status }) {
     return (
       <div>
         <h1 className="lead-h" style={{ maxWidth: 760 }}>
-          {status === "failed" ? "Current affairs couldn’t be refreshed right now." : "No major current-affairs updates right now."}
+          {status === "failed" ? "Current affairs couldn’t be refreshed right now." : "No major developments right now."}
         </h1>
         <p className="lead-p">
           {status === "failed"
@@ -28,7 +28,7 @@ export default function TodaysBrief({ brief, status }) {
           <span className="kicker">Lead story · {kickerText(lead)}</span>
           {lead.status && <span className={`flag ${lead.status === "DEVELOPING" ? "dev" : ""}`}>{lead.status}</span>}
         </div>
-        <a href={lead.url} target="_blank" rel="noreferrer"><h1 className="lead-h">{lead.headline}</h1></a>
+        <a href={lead.url} target="_blank" rel="noreferrer"><h1 className="lead-h hero-h">{lead.headline}</h1></a>
         {lead.summaryText && <p className="lead-p">{lead.summaryText}{lead.summaryIsGenerated && <span className="meta" style={{ display: "inline", marginLeft: 8 }}>· AI-assisted summary of the reporting</span>}</p>}
         <div className="meta" style={{ marginBottom: 6 }}>
           <RelTime iso={lead.newestAt} />

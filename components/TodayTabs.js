@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const tabs = [["/", "Today"], ["/brief", "Daily Brief"], ["/current-affairs", "Current Affairs"], ["/issue-watch", "Issue Watch"]];
+const tabs = [["/", "Today"], ["/brief", "Daily Brief"], ["/current-affairs", "Current Affairs"], ["/#trending-now", "Trending Now"], ["/issue-watch", "Issue Watch"]];
 
 export default function TodayTabs({ current }) {
   return (

@@ -9,7 +9,7 @@ import { trendingNetas } from "@/lib/attention";
 export default function TrendingNetas({ rows, max = 5, showNote = true }) {
   const trending = trendingNetas(rows || [], { max });
   if (!trending.length) {
-    return <div className="empty">No politician is showing unusual attention right now.</div>;
+    return <div className="empty">No significant trending movement.</div>;
   }
   return (
     <div>

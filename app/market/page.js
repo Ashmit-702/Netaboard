@@ -7,6 +7,8 @@ import { selectElectionWatch } from "@/lib/elections/classify";
 
 export const metadata = { title: "Prediction Market — NetaBoard" };
 
+export const dynamic = "force-dynamic";
+
 export default async function MarketPage() {
   const { elections } = await getElections();
   const watch = selectElectionWatch(elections);

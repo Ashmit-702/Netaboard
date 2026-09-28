@@ -82,7 +82,21 @@ unconfigured:
 - **`CRON_SECRET`** — required for Vercel Cron to authenticate to
   `/api/daily-brief` and `/api/attention-refresh`.
 
-## 3. Deploy
+## 3. Deploy — and prove production is one coherent version
+
+Vercel builds whatever is in your Git branch. Checklist:
+- **Settings → Git → Production Branch** is the branch you push to (usually `main`).
+- **Settings → General → Root Directory** is empty (this repo has `package.json` at its root).
+- **Deployments**: the *Production* deployment's commit SHA must equal your latest commit. If an older deployment is marked Production (e.g. after an "Instant Rollback"/promote), new pushes will not go live.
+- Every route now reports the same build fingerprint (`<meta name="netaboard-build">`, header `x-netaboard-build`, and `/api/version`). After each deploy run:
+
+```bash
+npm run verify:prod -- https://your-site.vercel.app
+```
+
+It fetches the live site (bypassing cache) and fails if any route comes from a different build, the homepage is not the homepage (e.g. serving the Politicians page), the navigation is not Today · Politicians · Elections · Evidence · Explore, old-product or vendor strings appear, or a politician link does not return 200.
+
+## 3b. Deploy
 
 ```bash
 npm install -g vercel

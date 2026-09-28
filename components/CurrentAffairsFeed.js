@@ -2,7 +2,7 @@
 import { useMemo, useState } from "react";
 import StoryRow, { kickerText } from "./StoryRow";
 import RelTime from "./RelTime";
-import { FILTERS, matchesFilter, searchItems, sortItems } from "@/lib/current-affairs/search";
+import { FILTERS, FILTER_LABEL, matchesFilter, applyView, sortItems } from "@/lib/current-affairs/search";
 
 // Filter / search / sort over story CLUSTERS (never raw articles). Filter
 // chips shown are only those with at least one story today — "data-driven".
@@ -12,10 +12,7 @@ export default function CurrentAffairsFeed({ items }) {
   const [q, setQ] = useState("");
 
   const available = useMemo(() => FILTERS.filter((f) => f === "All" || items.some((it) => matchesFilter(it, f))), [items]);
-  const visible = useMemo(
-    () => sortItems(searchItems(items.filter((it) => matchesFilter(it, filter)), q), mode),
-    [items, filter, mode, q]
-  );
+  const visible = useMemo(() => sortItems(applyView(items, { filter, query: q }), mode), [items, filter, mode, q]);
 
   return (
     <div>
@@ -32,7 +29,7 @@ export default function CurrentAffairsFeed({ items }) {
 
       <div className="filters" role="group" aria-label="Category">
         {available.map((f) => (
-          <button key={f} className="filter" aria-pressed={filter === f} onClick={() => setFilter(f)}>{f}</button>
+          <button key={f} className="filter" aria-pressed={filter === f} onClick={() => setFilter(f)}>{FILTER_LABEL[f] || f}</button>
         ))}
       </div>
 

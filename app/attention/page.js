@@ -8,6 +8,8 @@ import RelTime from "@/components/RelTime";
 
 export const metadata = { title: "Political Attention — NetaBoard" };
 
+export const dynamic = "force-dynamic";
+
 export default async function AttentionPage() {
   const attention = await getAttention();
   return (

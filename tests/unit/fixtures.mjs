@@ -71,3 +71,23 @@ export const roster = [
 ];
 
 export const asProvider = (articles, provider = "gdelt") => [{ provider, articles }];
+
+// ---- relevance fixtures -------------------------------------------------
+// A political/court story with modest coverage.
+export const courtArticles = [
+  raw("Supreme Court reserves verdict on election commission appointment law", "https://www.thehindu.com/news/sc-election-commission-r1.ece", 120, "The court heard petitions challenging the appointment process for election commissioners."),
+  raw("SC reserves order on plea against election commission appointments law", "https://www.ndtv.com/india-news/sc-reserves-order-r2", 105, "The bench reserved its order after two days of hearings."),
+  raw("Supreme Court election commission appointments case: order reserved", "https://www.livemint.com/politics/sc-order-reserved-r3.html", 95),
+];
+// A celebrity story with MANY outlets and very fresh.
+export const celebrityArticles = ["thehindu.com", "ndtv.com", "hindustantimes.com", "indianexpress.com", "livemint.com", "news18.com", "firstpost.com", "deccanherald.com"].map((d, i) =>
+  raw(`Bollywood actor announces new film with famous director, fans celebrate ${i % 2 ? "trailer" : "release"}`, `https://www.${d}/entertainment/actor-film-${i}`, 20 + i * 3, i === 0 ? "The film's trailer will release next week, the actor said." : null));
+// A big sports story.
+export const bigSports = ["thehindu.com", "ndtv.com", "hindustantimes.com", "indianexpress.com", "livemint.com", "news18.com", "firstpost.com", "deccanherald.com"].map((d, i) =>
+  raw(`India win thrilling cricket final, batting heroes celebrate championship victory ${i}`, `https://www.${d}/sport/final-${i}`, 15 + i * 2, i === 0 ? "A last-over finish sealed the tournament." : null));
+// A sports story that is really a government decision: exceptional.
+export const sportsPolicy = [
+  raw("Wrestling federation banned: athletes, coach and medal winners react before tournament", "https://www.thehindu.com/sport/ministry-ban-1.ece", 70, "The sports ministry ordered the ban after a parliament committee report; athletes and the coach said the tournament plans are in doubt."),
+  raw("Wrestling federation ban: athletes, coach and medal winners react ahead of tournament, opposition questions minister in parliament", "https://www.ndtv.com/sport/ministry-ban-2", 60),
+  raw("Wrestling federation ban: tournament in doubt, athletes and coach say; parliament committee report cited", "https://www.hindustantimes.com/sport/ministry-ban-3.html", 55),
+];

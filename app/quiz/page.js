@@ -11,6 +11,8 @@ const fallbackQuestions = [
   { question: "In which year was Article 370 revoked?", options: ["2017", "2018", "2019", "2020"], correct_index: 2 },
 ];
 
+export const dynamic = "force-dynamic";
+
 export default async function QuizPage() {
   const dbQuestions = await getQuiz();
   const questions = dbQuestions.length ? dbQuestions : fallbackQuestions;

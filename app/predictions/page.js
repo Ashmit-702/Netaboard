@@ -3,15 +3,23 @@ import Footer from "@/components/Footer";
 import Gauge from "@/components/Gauge";
 import { adaptElectionForGauge } from "@/lib/data";
 import { getElections } from "@/lib/elections/get";
-import { selectElectionWatch } from "@/lib/elections/classify";
+import { groupElections } from "@/lib/elections/classify";
+import { formatISTDate } from "@/lib/time";
 import { freshnessLabel } from "@/lib/freshness";
 
 export const metadata = { title: "Election Predictions — NetaBoard" };
+export const dynamic = "force-dynamic";
 
+// Predictions are model ESTIMATES, separate from the Elections page (which
+// says which elections exist and what state they are in). An election with
+// no estimate is simply not shown here — it is never a reason to hide the
+// election itself, which lives at /elections.
 export default async function PredictionsPage() {
-  const { elections } = await getElections();
-  const watch = selectElectionWatch(elections);
-  const election = adaptElectionForGauge(watch);
+  const { ok, elections } = await getElections();
+  const groups = groupElections(elections);
+  const withEstimate = [...groups.LIVE, ...groups.UPCOMING, ...groups.RESULTS.filter((e) => e.recent)].find((e) => e.summary);
+  const election = adaptElectionForGauge(withEstimate);
+  const upcoming = [...groups.LIVE, ...groups.UPCOMING];
   const fresh = election ? freshnessLabel(election.lastUpdated) : null;
 
   return (
@@ -60,11 +68,24 @@ export default async function PredictionsPage() {
           </>
         ) : (
           <>
-            <div className="eyebrow">Elections</div>
-            <h2 className="title">No current election has enough verified data yet.</h2>
+            <div className="eyebrow">Predictions</div>
+            <h2 className="title">No current election has a verified estimate.</h2>
             <p className="sub">
-              NetaBoard doesn't substitute old or fabricated data here. Check <a href="/calendar" style={{ color: "var(--amber)", textDecoration: "underline" }}>the election calendar</a> or <a href="/history" style={{ color: "var(--amber)", textDecoration: "underline" }}>historical results</a> in the meantime.
+              Predictions are model estimates and are shown only when one is recorded for a live, upcoming or just-decided election. NetaBoard does not fill this page with older or invented numbers.
+              See <a href="/elections" style={{ color: "var(--amber)", textDecoration: "underline" }}>Elections</a> for what is live, upcoming and decided.
             </p>
+            {!ok && <div className="empty" role="status">Election records couldn’t be loaded right now.</div>}
+            {ok && upcoming.length > 0 && (
+              <div style={{ marginTop: 24 }}>
+                <div className="kicker" style={{ borderBottom: "1px solid var(--line)", paddingBottom: 10 }}>Elections without an estimate yet</div>
+                {upcoming.map((e) => (
+                  <a key={e.id} href={`/elections/${e.id}`} className="row-line" style={{ padding: "14px 0" }}>
+                    <span style={{ flex: 1, fontWeight: 700 }}>{e.name}</span>
+                    <span className="meta">{formatISTDate(e.election_date)}</span>
+                  </a>
+                ))}
+              </div>
+            )}
           </>
         )}
       </section>
