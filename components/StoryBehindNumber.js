@@ -1,24 +1,22 @@
-// NetaBoard's one signature data-visual pattern: a number, and the real,
-// countable inputs behind it — never fabricated categories. Currently wired
-// to Political Attention, the one place a genuine per-source breakdown
-// exists (see lib/changes.js's parseAttentionFactors, which reads the exact
-// counts app/api/stock-refresh/route.js already computed).
-export default function StoryBehindNumber({ title, value, delta, factors, href }) {
+// NetaBoard's one signature data-visual pattern: the real, countable
+// signals behind a Political Attention reading, categorized (News / Social
+// / Discovery / Breadth) — never fabricated, never blended into one opaque
+// number. `headline` is the model's own plain-language verdict
+// (lib/attention.js:attentionHeadline) — "Not enough attention history",
+// "Attention steady", or a genuine windowed percentage — never a bare
+// "+3" that implies more precision or meaning than the signal supports.
+export default function StoryBehindNumber({ title, headline, insufficientHistory, factors, href }) {
   const max = Math.max(1, ...factors.map((f) => f.value));
-  const up = delta > 0;
+  const up = /^\+/.test(headline || "");
+  const down = /^-/.test(headline || "");
 
   return (
     <div className="card">
       <div style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--paper-faint)", fontFamily: "var(--sans)", marginBottom: 6 }}>
         The story behind the number
       </div>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4 }}>
-        <span style={{ fontFamily: "var(--mono)", fontSize: 32, fontWeight: 700 }}>{value}</span>
-        {typeof delta === "number" && (
-          <span style={{ fontFamily: "var(--mono)", fontSize: 14, fontWeight: 700, color: up ? "var(--mint)" : "var(--red)" }}>
-            {up ? "▲" : "▼"} {Math.abs(delta)}%
-          </span>
-        )}
+      <div style={{ fontFamily: "var(--mono)", fontSize: 22, fontWeight: 700, marginBottom: 4, color: insufficientHistory ? "var(--paper-faint)" : up ? "var(--mint)" : down ? "var(--red)" : "var(--paper)" }}>
+        {headline}
       </div>
       <div style={{ fontSize: 13.5, color: "var(--paper-dim)", marginBottom: 18 }}>{title}</div>
 

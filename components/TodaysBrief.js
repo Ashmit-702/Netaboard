@@ -5,7 +5,7 @@ import { formatISTClock } from "@/lib/time";
 // TODAY'S BRIEF — the homepage hero. Lead story, 3-5 further developments,
 // what to watch, timestamp. Built from the Current Affairs engine
 // (lib/brief). Asymmetric editorial layout: lead left, compact list right.
-export default function TodaysBrief({ brief, status }) {
+export default function TodaysBrief({ brief, status, compact = false }) {
   if (!brief) {
     return (
       <div>
@@ -20,7 +20,8 @@ export default function TodaysBrief({ brief, status }) {
       </div>
     );
   }
-  const { lead, developments, watch, aiWatch } = brief;
+  const { lead, watch, aiWatch } = brief;
+  const developments = compact ? brief.developments.slice(0, 3) : brief.developments;
   return (
     <div className="ed-grid">
       <div>
@@ -39,7 +40,7 @@ export default function TodaysBrief({ brief, status }) {
       </div>
 
       <aside className="ed-side" aria-label="Also in today's brief">
-        <div className="kicker" style={{ marginBottom: 4 }}>Also today</div>
+        <div className="kicker" style={{ marginBottom: 4 }}>{compact ? "Key developments" : "Also today"}</div>
         <div className="rule-list">
           {developments.map((d, i) => (
             <a key={d.id} href={d.url} target="_blank" rel="noreferrer" style={{ display: "block", padding: "13px 0" }}>

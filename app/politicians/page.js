@@ -2,6 +2,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import TrendingNetas from "@/components/TrendingNetas";
 import RelTime from "@/components/RelTime";
+import { attentionHeadline, hasSufficientHistory } from "@/lib/attention";
 import { getPoliticians, getAttention } from "@/lib/data";
 
 export const metadata = { title: "Politicians — NetaBoard" };
@@ -39,7 +40,6 @@ export default async function PoliticiansPage() {
               const a = p.accountability;
               const att = attentionBySlug.get(p.slug);
               const up = att && att.change_pct > 0;
-              const flat = att && Math.abs(att.change_pct) < 0.05;
               return (
                 <a
                   key={p.slug} href={`/politicians/${p.slug}`}
@@ -50,15 +50,15 @@ export default async function PoliticiansPage() {
                     <div className="meta" style={{ marginTop: 2 }}>{[p.role, p.party?.abbreviation].filter(Boolean).join(" · ")}</div>
                   </div>
 
-                  <div style={{ flex: "1 1 130px", fontFamily: "var(--mono)", fontSize: 13 }}>
+                  <div style={{ flex: "1 1 170px", fontFamily: "var(--mono)", fontSize: 12.5 }}>
                     {att ? (
-                      <span style={{ color: flat ? "var(--paper-faint)" : up ? "var(--mint)" : "var(--red)", fontWeight: 700 }}>
-                        {flat ? "● steady" : up ? "▲" : "▼"} {flat ? "" : `${Math.abs(att.change_pct)}%`}
+                      <span style={{ color: !hasSufficientHistory(att) ? "var(--paper-faint)" : up ? "var(--mint)" : "var(--red)", fontWeight: 700 }}>
+                        {attentionHeadline(att)}
                       </span>
                     ) : (
                       <span style={{ color: "var(--paper-faint)" }}>No recent reading</span>
                     )}
-                    {att && <div className="meta" style={{ marginTop: 2 }}><RelTime iso={att.recorded_at} /></div>}
+                    {att && <div className="meta" style={{ marginTop: 2 }}>updated <RelTime iso={att.recorded_at} /></div>}
                   </div>
 
                   <div style={{ flex: "1 1 150px", fontFamily: "var(--mono)", fontSize: 13 }}>

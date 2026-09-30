@@ -45,10 +45,10 @@ if (pages["/"]) {
   const title = (home.match(/<title>([^<]*)<\/title>/) || [])[1];
   if (/^Politicians/.test(title || "")) fail(`homepage is serving the Politicians page (title "${title}")`); else ok(`homepage title: ${title}`);
   const sec = (name) => home.search(new RegExp(`class="eyebrow">\\s*${name.replace("'", "(?:'|&#x27;|&apos;)")}\\s*<`));
-  const names = ["Today's Brief", "Current Affairs", "Trending Now", "Issue Watch", "Trending Netas", "Ask NetaBoard"];
+  const names = ["Today's Brief", "Trending Now", "Current Affairs", "Issue Watch", "Trending Netas", "Ask NetaBoard"];
   const pos = names.map(sec);
   names.forEach((n, i) => { if (pos[i] < 0) fail(`homepage missing section: ${n}`); });
-  if (pos.every((v) => v >= 0) && pos.every((v, i) => i === 0 || v > pos[i - 1])) ok("homepage section order: Brief → Current Affairs → Trending Now → Issue Watch → Trending Netas → Ask NetaBoard");
+  if (pos.every((v) => v >= 0) && pos.every((v, i) => i === 0 || v > pos[i - 1])) ok("homepage section order: Brief → Trending Now → Current Affairs → Issue Watch → Trending Netas → Ask NetaBoard");
   else fail("homepage sections are out of order");
   if (!home.includes("today-tabs")) fail("homepage has no Today secondary navigation");
   if (/Constituenc|Geopolitical|Stock Market/i.test(text(home))) fail("homepage contains a removed feature");
